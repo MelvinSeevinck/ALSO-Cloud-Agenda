@@ -52,12 +52,13 @@
       <h2>Abonneer op de agenda</h2>
       <p>Voeg deze agenda één keer toe aan je eigen agenda-app. Nieuwe events, wijzigingen en verwijderingen worden daarna automatisch verwerkt zodra de agenda-app synchroniseert.</p>
       <div class="button-row">
-        <a class="button" href="https://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics">Outlook Calendar</a>
-        <a class="button secondary" href="webcal://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics">Apple Calendar</a>
-        <a class="button light" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmelvinseevinck.github.io%2FALSO-Cloud-Agenda%2Fcalendar.ics" target="_blank" rel="noopener">Google Calendar</a>
+        <a class="button tracked-link" href="https://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="" data-event-title="">Outlook Calendar</a>
+        <a class="button secondary tracked-link" href="webcal://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics" data-action="subscribe_click" data-calendar-type="apple" data-event-id="" data-event-title="">Apple Calendar</a>
+        <a class="button light tracked-link" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmelvinseevinck.github.io%2FALSO-Cloud-Agenda%2Fcalendar.ics" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="" data-event-title="">Google Calendar</a>
         <a class="button light" href="admin.html">Event Builder</a>
       </div>
       <p class="hint">Outlook Calendar downloadt het kalenderbestand. Als Outlook Desktop gekoppeld is aan .ics-bestanden, opent Outlook automatisch. Outlook Web kan alsnog om een naam vragen; gebruik dan <strong>ALSO Cloud Agenda</strong>.</p>
+      <p class="hint">We meten alleen klikstatistieken om het gebruik van de agenda te verbeteren. Er worden via deze website geen IP-adressen opgeslagen.</p>
       <p>Directe abonnementslink:</p>
       <p><code>https://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics</code></p>
       <p>Webcal-link:</p>
@@ -107,6 +108,73 @@ meer informatie over het programma en aanmelden volgt binnenkort.
     <footer>Deze kalender wordt automatisch gepubliceerd vanuit GitHub Pages.</footer>
   </main>
   <script>
+    window.ALSO_TRACKING_CONFIG = {"enabled": true, "endpointUrl": "", "source": "ALSO Cloud Events"};
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name) || "";
+    }
+
+    function getSessionId() {
+      const key = "alsoCloudEventsSessionId";
+      let value = sessionStorage.getItem(key);
+      if (!value) {
+        value = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+        sessionStorage.setItem(key, value);
+      }
+      return value;
+    }
+
+    async function trackUsage(payload) {
+      const config = window.ALSO_TRACKING_CONFIG || {};
+      if (!config.enabled || !config.endpointUrl) return;
+
+      const body = {
+        timestampUtc: new Date().toISOString(),
+        source: config.source || "ALSO Cloud Events",
+        action: payload.action || "",
+        calendarType: payload.calendarType || "",
+        eventId: payload.eventId || "",
+        eventTitle: payload.eventTitle || "",
+        partnerCode: getQueryParam("partner") || getQueryParam("partnerCode") || "",
+        campaign: getQueryParam("campaign") || getQueryParam("utm_campaign") || "",
+        pageUrl: window.location.href,
+        referrer: document.referrer || "",
+        userAgent: navigator.userAgent || "",
+        language: navigator.language || "",
+        sessionId: getSessionId()
+      };
+
+      try {
+        const blob = new Blob([JSON.stringify(body)], { type: "application/json" });
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(config.endpointUrl, blob);
+        } else {
+          await fetch(config.endpointUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            keepalive: true
+          });
+        }
+      } catch (e) {
+        console.warn("Tracking failed", e);
+      }
+    }
+
+    document.querySelectorAll(".tracked-link").forEach(link => {
+      link.addEventListener("click", () => {
+        trackUsage({
+          action: link.dataset.action,
+          calendarType: link.dataset.calendarType,
+          eventId: link.dataset.eventId,
+          eventTitle: link.dataset.eventTitle
+        });
+      });
+    });
+
+    trackUsage({ action: "page_view", calendarType: "", eventId: "", eventTitle: "" });
+
     const filters = document.querySelectorAll('.filter');
     const cards = document.querySelectorAll('.event-card');
     const search = document.getElementById('search');
@@ -127,6 +195,7 @@ meer informatie over het programma en aanmelden volgt binnenkort.
         btn.classList.add('active');
         activeFilter = btn.dataset.filter;
         applyFilters();
+        trackUsage({ action: "filter_click", calendarType: btn.dataset.filter, eventId: "", eventTitle: "" });
       });
     });
     search.addEventListener('input', applyFilters);
