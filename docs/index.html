@@ -1,9 +1,151 @@
 <!doctype html>
 <html lang="nl">
-<head><meta charset="utf-8"><title>ALSO Cloud Partner Calendar</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALSO Cloud Partner Calendar</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --dark: #111827;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 52px 24px;
+    }
+    .wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .button {
+      display: inline-block;
+      background: var(--dark);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      margin: 8px 8px 8px 0;
+    }
+    .button.secondary { background: #374151; }
+    .button.light { background: #eef2ff; color: #111827; }
+    code {
+      background: #f3f4f6;
+      padding: 3px 6px;
+      border-radius: 6px;
+      word-break: break-all;
+    }
+    .event-card {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 24px;
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .event-card:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+    .event-date {
+      font-weight: bold;
+      color: var(--dark);
+    }
+    .event-category {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .event-content h3 {
+      margin: 0 0 4px;
+    }
+    .location {
+      color: var(--muted);
+      margin-top: 0;
+    }
+    .event-link {
+      font-weight: bold;
+      color: var(--dark);
+    }
+    footer {
+      color: var(--muted);
+      font-size: 14px;
+      padding-top: 8px;
+    }
+    @media (max-width: 720px) {
+      .event-card {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
 <body>
-  <h1>ALSO Cloud Partner Calendar</h1>
-  <p>Deze pagina wordt automatisch opnieuw opgebouwd vanuit events.yml.</p>
-  <p><a href="calendar.ics">Download / open agenda</a></p>
+  <header>
+    <div class="wrap">
+      <h1>ALSO Cloud Partner Calendar</h1>
+      <p>Centrale agenda voor Cloud partners van ALSO Nederland B.V. met webinars, solution trainingen, workshops, partner enablement sessies en partner events.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Abonneer op de agenda</h2>
+      <p>
+        Voeg deze agenda één keer toe aan je eigen agenda-app. Nieuwe events, wijzigingen en verwijderingen
+        worden daarna automatisch verwerkt zodra de agenda-app synchroniseert.
+      </p>
+      <a class="button" href="calendar.ics">Download / open agenda</a>
+      <a class="button secondary" href="webcal://melvinseevinck.github.io/ALSO-Cloud-Calender/calendar.ics">Abonneer via webcal</a>
+      <a class="button light" href="admin.html">Event Builder</a>
+      <p>Abonnementslink:</p>
+      <p><code>webcal://melvinseevinck.github.io/ALSO-Cloud-Calender/calendar.ics</code></p>
+    </section>
+
+    <section class="panel">
+      <h2>Geplande events</h2>
+      
+        <article class="event-card">
+          <div class="event-date">2026-09-30</div>
+          <div class="event-content">
+            <div class="event-category">⭐ ALSO Cloud Summit</div>
+            <h3>⭐ ALSO Cloud Summit 2026</h3>
+            <p class="location">Het Houtse Meer, Den Hout</p>
+            <p>We zien je graag op 30 september bij de ALSO Cloud Summit 2026.<br><br>Tijdens de Cloud Summit worden de ALSO Partner Awards uitgereikt.<br><br>Daarnaast staan er twee keynotes op het programma:<br>- Cybersecurity<br>- AI<br><br>Ook zijn er vier breakout sessies:<br>- Road to Cloud<br>- Road to Compliance<br>- Road to Cybersecurity<br>- Road to Copilot &amp; AI<br><br>Meer informatie over het programma en aanmelden volgt binnenkort.<br></p>
+            
+          </div>
+        </article>
+        
+    </section>
+
+    <footer>
+      Deze kalender wordt automatisch gepubliceerd vanuit GitHub Pages.
+    </footer>
+  </main>
 </body>
 </html>
