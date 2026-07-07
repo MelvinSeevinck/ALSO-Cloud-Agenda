@@ -1,11 +1,8 @@
 calendar:
-  name: "ALSO Cloud Partner Calendar"
+  name: "ALSO Cloud Agenda"
   description: "Centrale agenda voor Cloud partners van ALSO Nederland B.V. met webinars, solution trainingen, workshops, partner enablement sessies en partner events."
   timezone: "Europe/Amsterdam"
-  # Vul deze URL aan nadat GitHub Pages live staat.
-  # Voor jouw huidige repository is dit waarschijnlijk:
-  # https://melvinseevinck.github.io/ALSO-Cloud-Calender/
-  site_url: "https://melvinseevinck.github.io/ALSO-Cloud-Calender/"
+  site_url: "https://melvinseevinck.github.io/ALSO-Cloud-Agenda/"
 
 settings:
   show_past_events: false
