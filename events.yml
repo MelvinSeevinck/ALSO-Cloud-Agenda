@@ -1,0 +1,50 @@
+calendar:
+  name: "ALSO Cloud Partner Calendar"
+  description: "Centrale agenda voor Cloud partners van ALSO Nederland B.V. met webinars, solution trainingen, workshops, partner enablement sessies en partner events."
+  timezone: "Europe/Amsterdam"
+  # Vul deze URL aan nadat GitHub Pages live staat.
+  # Voor jouw huidige repository is dit waarschijnlijk:
+  # https://melvinseevinck.github.io/ALSO-Cloud-Calender/
+  site_url: "https://melvinseevinck.github.io/ALSO-Cloud-Calender/"
+
+settings:
+  show_past_events: false
+
+categories:
+  webinar:
+    label: "🟦 Webinar"
+  solution-training:
+    label: "🟩 Solution Training"
+  workshop:
+    label: "🟨 Workshop"
+  partner-event:
+    label: "🟪 Partner Event"
+  cloud-summit:
+    label: "⭐ ALSO Cloud Summit"
+  microsoft-event:
+    label: "🔴 Microsoft Event"
+
+events:
+  - id: "also-cloud-summit-2026"
+    title: "⭐ ALSO Cloud Summit 2026"
+    date: "2026-09-30"
+    all_day: true
+    location: "Het Houtse Meer, Den Hout"
+    category: "cloud-summit"
+    registration_url: ""
+    description: |
+      We zien je graag op 30 september bij de ALSO Cloud Summit 2026.
+
+      Tijdens de Cloud Summit worden de ALSO Partner Awards uitgereikt.
+
+      Daarnaast staan er twee keynotes op het programma:
+      - Cybersecurity
+      - AI
+
+      Ook zijn er vier breakout sessies:
+      - Road to Cloud
+      - Road to Compliance
+      - Road to Cybersecurity
+      - Road to Copilot & AI
+
+      Meer informatie over het programma en aanmelden volgt binnenkort.
