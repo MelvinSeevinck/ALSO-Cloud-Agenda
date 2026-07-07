@@ -1,6 +1,7 @@
 calendar:
-  name: "ALSO Cloud Agenda"
-  description: "Centrale agenda voor Cloud partners van ALSO Nederland B.V. met webinars, solution trainingen, workshops, partner enablement sessies en partner events."
+  name: "ALSO Cloud Events"
+  agenda_name: "ALSO Cloud Agenda"
+  description: "De centrale evenementenkalender voor Cloud partners van ALSO Nederland B.V. met webinars, solution trainingen, workshops, partner enablement sessies en partner events."
   timezone: "Europe/Amsterdam"
   site_url: "https://melvinseevinck.github.io/ALSO-Cloud-Agenda/"
 
@@ -28,6 +29,12 @@ events:
     all_day: true
     location: "Het Houtse Meer, Den Hout"
     category: "cloud-summit"
+    featured: true
+    tags:
+      - AI
+      - Cybersecurity
+      - Partner Awards
+      - Cloud Summit
     registration_url: ""
     description: |
       We zien je graag op 30 september bij de ALSO Cloud Summit 2026.
