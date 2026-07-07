@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "properties": {
+    "timestampUtc": { "type": "string" },
+    "source": { "type": "string" },
+    "action": { "type": "string" },
+    "calendarType": { "type": "string" },
+    "eventId": { "type": "string" },
+    "eventTitle": { "type": "string" },
+    "partnerCode": { "type": "string" },
+    "campaign": { "type": "string" },
+    "pageUrl": { "type": "string" },
+    "referrer": { "type": "string" },
+    "userAgent": { "type": "string" },
+    "language": { "type": "string" },
+    "sessionId": { "type": "string" }
+  }
+}
