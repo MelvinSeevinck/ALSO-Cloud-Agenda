@@ -5,6 +5,14 @@ calendar:
   timezone: "Europe/Amsterdam"
   site_url: "https://melvinseevinck.github.io/ALSO-Cloud-Agenda/"
 
+tracking:
+  enabled: true
+  # Plak hier straks de HTTP POST URL uit Power Automate.
+  # Voorbeeld: "https://prod-xx.westeurope.logic.azure.com/..."
+  endpoint_url: ""
+  source: "ALSO Cloud Events"
+  privacy_notice: "We meten alleen klikstatistieken om het gebruik van de agenda te verbeteren. Er worden via deze website geen IP-adressen opgeslagen."
+
 settings:
   show_past_events: false
 

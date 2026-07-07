@@ -147,7 +147,7 @@ def build_event_card(data: dict, event: dict) -> str:
     registration = ""
     if event.get("registration_url"):
         url = html.escape(event["registration_url"])
-        registration = f'<a class="small-button" href="{url}">Aanmelden</a>'
+        registration = f'<a class="small-button tracked-link" href="{url}" data-action="registration_click" data-calendar-type="registration" data-event-id="{html.escape(event.get("id",""))}" data-event-title="{html.escape(event.get("title",""))}">Aanmelden</a>'
 
     featured = " featured" if event.get("featured") else ""
     return f"""
@@ -167,6 +167,7 @@ def build_event_card(data: dict, event: dict) -> str:
 def build_index(data: dict) -> str:
     calendar = data.get("calendar", {})
     settings = data.get("settings", {})
+    tracking = data.get("tracking", {})
     site_url = calendar.get("site_url", "").rstrip("/") + "/"
     https_ics_url = site_url + "calendar.ics"
     webcal_url = https_ics_url.replace("https://", "webcal://").replace("http://", "webcal://")
@@ -190,6 +191,15 @@ def build_index(data: dict) -> str:
     category_buttons = ['<button class="filter active" data-filter="all">Alle events</button>']
     for key, value in (data.get("categories") or {}).items():
         category_buttons.append(f'<button class="filter" data-filter="{html.escape(key)}">{html.escape(value.get("label", key))}</button>')
+
+    tracking_config_json = json.dumps({
+        "enabled": bool(tracking.get("enabled", False)),
+        "endpointUrl": tracking.get("endpoint_url", ""),
+        "source": tracking.get("source", "ALSO Cloud Events"),
+    }, ensure_ascii=False)
+
+    privacy_notice = tracking.get("privacy_notice", "")
+    privacy_html = f'<p class="hint">{html.escape(privacy_notice)}</p>' if privacy_notice else ""
 
     return f"""<!doctype html>
 <html lang="nl">
@@ -245,12 +255,13 @@ def build_index(data: dict) -> str:
       <h2>Abonneer op de agenda</h2>
       <p>Voeg deze agenda één keer toe aan je eigen agenda-app. Nieuwe events, wijzigingen en verwijderingen worden daarna automatisch verwerkt zodra de agenda-app synchroniseert.</p>
       <div class="button-row">
-        <a class="button" href="{html.escape(outlook_desktop_url)}">Outlook Calendar</a>
-        <a class="button secondary" href="{html.escape(webcal_url)}">Apple Calendar</a>
-        <a class="button light" href="{html.escape(google_url)}" target="_blank" rel="noopener">Google Calendar</a>
+        <a class="button tracked-link" href="{html.escape(outlook_desktop_url)}" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="" data-event-title="">Outlook Calendar</a>
+        <a class="button secondary tracked-link" href="{html.escape(webcal_url)}" data-action="subscribe_click" data-calendar-type="apple" data-event-id="" data-event-title="">Apple Calendar</a>
+        <a class="button light tracked-link" href="{html.escape(google_url)}" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="" data-event-title="">Google Calendar</a>
         <a class="button light" href="admin.html">Event Builder</a>
       </div>
       <p class="hint">Outlook Calendar downloadt het kalenderbestand. Als Outlook Desktop gekoppeld is aan .ics-bestanden, opent Outlook automatisch. Outlook Web kan alsnog om een naam vragen; gebruik dan <strong>ALSO Cloud Agenda</strong>.</p>
+      {privacy_html}
       <p>Directe abonnementslink:</p>
       <p><code>{html.escape(https_ics_url)}</code></p>
       <p>Webcal-link:</p>
@@ -273,6 +284,73 @@ def build_index(data: dict) -> str:
     <footer>Deze kalender wordt automatisch gepubliceerd vanuit GitHub Pages.</footer>
   </main>
   <script>
+    window.ALSO_TRACKING_CONFIG = {tracking_config_json};
+
+    function getQueryParam(name) {{
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name) || "";
+    }}
+
+    function getSessionId() {{
+      const key = "alsoCloudEventsSessionId";
+      let value = sessionStorage.getItem(key);
+      if (!value) {{
+        value = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+        sessionStorage.setItem(key, value);
+      }}
+      return value;
+    }}
+
+    async function trackUsage(payload) {{
+      const config = window.ALSO_TRACKING_CONFIG || {{}};
+      if (!config.enabled || !config.endpointUrl) return;
+
+      const body = {{
+        timestampUtc: new Date().toISOString(),
+        source: config.source || "ALSO Cloud Events",
+        action: payload.action || "",
+        calendarType: payload.calendarType || "",
+        eventId: payload.eventId || "",
+        eventTitle: payload.eventTitle || "",
+        partnerCode: getQueryParam("partner") || getQueryParam("partnerCode") || "",
+        campaign: getQueryParam("campaign") || getQueryParam("utm_campaign") || "",
+        pageUrl: window.location.href,
+        referrer: document.referrer || "",
+        userAgent: navigator.userAgent || "",
+        language: navigator.language || "",
+        sessionId: getSessionId()
+      }};
+
+      try {{
+        const blob = new Blob([JSON.stringify(body)], {{ type: "application/json" }});
+        if (navigator.sendBeacon) {{
+          navigator.sendBeacon(config.endpointUrl, blob);
+        }} else {{
+          await fetch(config.endpointUrl, {{
+            method: "POST",
+            headers: {{ "Content-Type": "application/json" }},
+            body: JSON.stringify(body),
+            keepalive: true
+          }});
+        }}
+      }} catch (e) {{
+        console.warn("Tracking failed", e);
+      }}
+    }}
+
+    document.querySelectorAll(".tracked-link").forEach(link => {{
+      link.addEventListener("click", () => {{
+        trackUsage({{
+          action: link.dataset.action,
+          calendarType: link.dataset.calendarType,
+          eventId: link.dataset.eventId,
+          eventTitle: link.dataset.eventTitle
+        }});
+      }});
+    }});
+
+    trackUsage({{ action: "page_view", calendarType: "", eventId: "", eventTitle: "" }});
+
     const filters = document.querySelectorAll('.filter');
     const cards = document.querySelectorAll('.event-card');
     const search = document.getElementById('search');
@@ -293,6 +371,7 @@ def build_index(data: dict) -> str:
         btn.classList.add('active');
         activeFilter = btn.dataset.filter;
         applyFilters();
+        trackUsage({{ action: "filter_click", calendarType: btn.dataset.filter, eventId: "", eventTitle: "" }});
       }});
     }});
     search.addEventListener('input', applyFilters);
