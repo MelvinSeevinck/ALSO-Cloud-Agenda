@@ -59,3 +59,20 @@ Source: Deploy from a branch
 Branch: main
 Folder: /docs
 ```
+
+
+## Event-level tracking
+
+Deze versie logt niet alleen algemene agenda-abonnementen, maar ook kalenderkliks per event.
+
+Voorbeelden van acties in SharePoint:
+
+```text
+page_view
+subscribe_click
+event_calendar_click
+registration_click
+filter_click
+```
+
+Bij `event_calendar_click` worden automatisch `EventId`, `EventTitle` en `CalendarType` meegestuurd. Daardoor hoeft de Power Automate-flow niet aangepast te worden wanneer je nieuwe events toevoegt.

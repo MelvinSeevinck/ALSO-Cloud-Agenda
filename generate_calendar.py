@@ -141,13 +141,55 @@ def tag_html(event: dict) -> str:
     tags = event.get("tags") or []
     return "".join(f"<span>{html.escape(str(tag))}</span>" for tag in tags)
 
+def event_datetime_for_links(event: dict):
+    if event.get("all_day", False):
+        start = datetime.strptime(event["date"], "%Y-%m-%d")
+        end = start + timedelta(days=1)
+        return start.strftime("%Y%m%d"), end.strftime("%Y%m%d")
+    start = datetime.fromisoformat(event["start"])
+    end = datetime.fromisoformat(event["end"])
+    return start.strftime("%Y%m%dT%H%M%S"), end.strftime("%Y%m%dT%H%M%S")
+
+def event_google_link(event: dict) -> str:
+    start, end = event_datetime_for_links(event)
+    description = build_description(event)
+    params = {
+        "action": "TEMPLATE",
+        "text": event.get("title", ""),
+        "dates": f"{start}/{end}",
+        "details": description,
+        "location": event.get("location", ""),
+    }
+    return "https://calendar.google.com/calendar/render?" + urllib.parse.urlencode(params)
+
+def single_event_ics_url(event: dict) -> str:
+    # We still use the complete calendar feed for Outlook/Apple, because static GitHub Pages cannot generate
+    # unique .ics files per event without adding more generated output files.
+    return "calendar.ics"
+
 def build_event_card(data: dict, event: dict) -> str:
     label = html.escape(category_label(data, event.get("category", "")))
     description = html.escape(event.get("description", "")).replace("\n", "<br>")
+    event_id = html.escape(event.get("id", ""))
+    event_title = html.escape(event.get("title", ""))
+
     registration = ""
     if event.get("registration_url"):
         url = html.escape(event["registration_url"])
-        registration = f'<a class="small-button tracked-link" href="{url}" data-action="registration_click" data-calendar-type="registration" data-event-id="{html.escape(event.get("id",""))}" data-event-title="{html.escape(event.get("title",""))}">Aanmelden</a>'
+        registration = f'<a class="small-button tracked-link" href="{url}" data-action="registration_click" data-calendar-type="registration" data-event-id="{event_id}" data-event-title="{event_title}">Aanmelden</a>'
+
+    google_event_url = html.escape(event_google_link(event))
+    outlook_event_url = html.escape(single_event_ics_url(event))
+    apple_event_url = html.escape(single_event_ics_url(event))
+
+    calendar_buttons = f"""
+      <div class="event-actions">
+        <a class="small-button tracked-link" href="{outlook_event_url}" data-action="event_calendar_click" data-calendar-type="outlook" data-event-id="{event_id}" data-event-title="{event_title}">Outlook</a>
+        <a class="small-button secondary tracked-link" href="{apple_event_url}" data-action="event_calendar_click" data-calendar-type="apple" data-event-id="{event_id}" data-event-title="{event_title}">Apple</a>
+        <a class="small-button light tracked-link" href="{google_event_url}" target="_blank" rel="noopener" data-action="event_calendar_click" data-calendar-type="google" data-event-id="{event_id}" data-event-title="{event_title}">Google</a>
+        {registration}
+      </div>
+    """
 
     featured = " featured" if event.get("featured") else ""
     return f"""
@@ -155,11 +197,11 @@ def build_event_card(data: dict, event: dict) -> str:
       <div class="event-date">{html.escape(display_date(event))}</div>
       <div class="event-content">
         <div class="event-category">{label}</div>
-        <h3>{html.escape(event.get("title", ""))}</h3>
+        <h3>{event_title}</h3>
         <p class="location">{html.escape(event.get("location", ""))}</p>
         <div class="tags">{tag_html(event)}</div>
         <p>{description}</p>
-        <div class="event-actions">{registration}</div>
+        {calendar_buttons}
       </div>
     </article>
     """
@@ -222,7 +264,10 @@ def build_index(data: dict) -> str:
     .button {{ display:inline-block; background:var(--dark); color:white; padding:12px 18px; border-radius:10px; text-decoration:none; font-weight:bold; }}
     .button.secondary {{ background:#374151; }}
     .button.light {{ background:#eef2ff; color:#111827; }}
-    .small-button {{ display:inline-block; background:#111827; color:white; padding:9px 13px; border-radius:8px; text-decoration:none; font-weight:bold; }}
+    .small-button {{ display:inline-block; background:#111827; color:white; padding:9px 13px; border-radius:8px; text-decoration:none; font-weight:bold; margin:4px 6px 4px 0; }}
+    .small-button.secondary {{ background:#374151; }}
+    .small-button.light {{ background:#eef2ff; color:#111827; }}
+    .event-actions {{ display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }}
     code {{ background:#f3f4f6; padding:3px 6px; border-radius:6px; word-break:break-all; }}
     .hint {{ color:var(--muted); font-size:14px; margin-top:8px; }}
     .toolbar {{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:18px; }}
