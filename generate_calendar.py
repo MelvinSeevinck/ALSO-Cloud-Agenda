@@ -288,11 +288,11 @@ def build_index(data: dict) -> str:
     .location {{ color:var(--muted); margin-top:0; }}
     .tags {{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }}
     .tags span {{ background:#eef2ff; color:#1f2937; border-radius:999px; padding:4px 8px; font-size:12px; }}
-    .identity-box { background:#f8fbff; border:1px solid #dbeafe; border-radius:14px; padding:16px; margin-top:16px; }
-    .identity-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    .identity-grid label { font-weight:bold; font-size:13px; }
-    .identity-grid input { width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; margin-top:6px; font:inherit; }
-    #identityStatus { display:none; color:#065f46; font-weight:bold; }
+    .identity-box {{ background:#f8fbff; border:1px solid #dbeafe; border-radius:14px; padding:16px; margin-top:16px; }}
+    .identity-grid {{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }}
+    .identity-grid label {{ font-weight:bold; font-size:13px; }}
+    .identity-grid input {{ width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; margin-top:6px; font:inherit; }}
+    #identityStatus {{ display:none; color:#065f46; font-weight:bold; }}
     footer {{ color:var(--muted); font-size:14px; padding-top:8px; }}
     @media (max-width:720px) {{ h1 {{ font-size:32px; }} .event-card {{ grid-template-columns:1fr; gap:8px; }} .identity-grid {{ grid-template-columns:1fr; }} }}
   </style>
@@ -371,31 +371,31 @@ def build_index(data: dict) -> str:
     }}
 
 
-    function normalize(value, fallback) {
+    function normalize(value, fallback) {{
       const v = (value || "").trim();
       return v || fallback || "unknown";
-    }
-    function storageKey() { return (window.ALSO_TRACKING_CONFIG || {}).storageKey || "alsoCloudEventsUser"; }
-    function getIdentity() {
-      try { return JSON.parse(localStorage.getItem(storageKey()) || "{}"); } catch(e) { return {}; }
-    }
-    function setIdentity(identity) { localStorage.setItem(storageKey(), JSON.stringify(identity)); }
-    function loadIdentity() {
+    }}
+    function storageKey() {{ return (window.ALSO_TRACKING_CONFIG || {{}}).storageKey || "alsoCloudEventsUser"; }}
+    function getIdentity() {{
+      try {{ return JSON.parse(localStorage.getItem(storageKey()) || "{{}}"); }} catch(e) {{ return {{}}; }}
+    }}
+    function setIdentity(identity) {{ localStorage.setItem(storageKey(), JSON.stringify(identity)); }}
+    function loadIdentity() {{
       const identity = getIdentity();
       const n = document.getElementById("userName"), o = document.getElementById("organization"), e = document.getElementById("email"), s = document.getElementById("identityStatus");
       if (!n || !o || !e) return;
       n.value = identity.userName || ""; o.value = identity.organization || ""; e.value = identity.email || "";
       if (identity.userName && identity.organization && identity.email && s) s.style.display = "block";
-    }
-    function saveIdentity() {
-      const identity = { userName: normalize(document.getElementById("userName").value, ""), organization: normalize(document.getElementById("organization").value, ""), email: normalize(document.getElementById("email").value, "") };
-      if (!identity.userName || !identity.organization || !identity.email || identity.userName === "unknown" || identity.organization === "unknown" || identity.email === "unknown") { alert("Vul naam, organisatie en e-mailadres in voordat je de agenda toevoegt."); return false; }
+    }}
+    function saveIdentity() {{
+      const identity = {{ userName: normalize(document.getElementById("userName").value, ""), organization: normalize(document.getElementById("organization").value, ""), email: normalize(document.getElementById("email").value, "") }};
+      if (!identity.userName || !identity.organization || !identity.email || identity.userName === "unknown" || identity.organization === "unknown" || identity.email === "unknown") {{ alert("Vul naam, organisatie en e-mailadres in voordat je de agenda toevoegt."); return false; }}
       setIdentity(identity); document.getElementById("identityStatus").style.display = "block";
-      trackUsage({ action: "identity_saved", calendarType: "identity", eventId: "none", eventTitle: "none" });
+      trackUsage({{ action: "identity_saved", calendarType: "identity", eventId: "none", eventTitle: "none" }});
       return true;
-    }
-    function clearIdentity() { localStorage.removeItem(storageKey()); loadIdentity(); document.getElementById("identityStatus").style.display = "none"; }
-    function ensureIdentity() { const i = getIdentity(); return (i.userName && i.organization && i.email) || saveIdentity(); }
+    }}
+    function clearIdentity() {{ localStorage.removeItem(storageKey()); loadIdentity(); document.getElementById("identityStatus").style.display = "none"; }}
+    function ensureIdentity() {{ const i = getIdentity(); return (i.userName && i.organization && i.email) || saveIdentity(); }}
 
     async function trackUsage(payload) {{
       const config = window.ALSO_TRACKING_CONFIG || {{}};
