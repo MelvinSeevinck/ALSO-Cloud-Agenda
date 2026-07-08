@@ -176,17 +176,20 @@ def build_event_card(data: dict, event: dict) -> str:
     registration = ""
     if event.get("registration_url"):
         url = html.escape(event["registration_url"])
-        registration = f'<a class="small-button tracked-link" href="{url}" data-action="registration_click" data-calendar-type="registration" data-event-id="{event_id}" data-event-title="{event_title}">Aanmelden</a>'
+        registration = f'<a class="small-button tracked-link requires-identity" href="{url}" data-action="registration_click" data-calendar-type="registration" data-event-id="{event_id}" data-event-title="{event_title}">Aanmelden</a>'
 
     google_event_url = html.escape(event_google_link(event))
-    outlook_event_url = html.escape(single_event_ics_url(event))
-    apple_event_url = html.escape(single_event_ics_url(event))
+    site_url = (data.get("calendar", {}).get("site_url", "")).rstrip("/") + "/"
+    calendar_url = site_url + "calendar.ics"
+    webcal_url = calendar_url.replace("https://", "webcal://").replace("http://", "webcal://")
+    outlook_event_url = html.escape(webcal_url)
+    apple_event_url = html.escape(webcal_url)
 
     calendar_buttons = f"""
       <div class="event-actions">
-        <a class="small-button tracked-link" href="{outlook_event_url}" data-action="event_calendar_click" data-calendar-type="outlook" data-event-id="{event_id}" data-event-title="{event_title}">Outlook</a>
-        <a class="small-button secondary tracked-link" href="{apple_event_url}" data-action="event_calendar_click" data-calendar-type="apple" data-event-id="{event_id}" data-event-title="{event_title}">Apple</a>
-        <a class="small-button light tracked-link" href="{google_event_url}" target="_blank" rel="noopener" data-action="event_calendar_click" data-calendar-type="google" data-event-id="{event_id}" data-event-title="{event_title}">Google</a>
+        <a class="small-button tracked-link requires-identity" href="{outlook_event_url}" data-action="event_calendar_click" data-calendar-type="outlook" data-event-id="{event_id}" data-event-title="{event_title}">Outlook</a>
+        <a class="small-button secondary tracked-link requires-identity" href="{apple_event_url}" data-action="event_calendar_click" data-calendar-type="apple" data-event-id="{event_id}" data-event-title="{event_title}">Apple</a>
+        <a class="small-button light tracked-link requires-identity" href="{google_event_url}" target="_blank" rel="noopener" data-action="event_calendar_click" data-calendar-type="google" data-event-id="{event_id}" data-event-title="{event_title}">Google</a>
         {registration}
       </div>
     """
@@ -238,6 +241,7 @@ def build_index(data: dict) -> str:
         "enabled": bool(tracking.get("enabled", False)),
         "endpointUrl": tracking.get("endpoint_url", ""),
         "source": tracking.get("source", "ALSO Cloud Events"),
+        "storageKey": (data.get("identity") or {}).get("storage_key", "alsoCloudEventsUser"),
     }, ensure_ascii=False)
 
     privacy_notice = tracking.get("privacy_notice", "")
@@ -256,6 +260,7 @@ def build_index(data: dict) -> str:
     header {{ background:linear-gradient(135deg,#111827,#1f2937); color:white; padding:56px 24px; }}
     .wrap, main {{ max-width:1120px; margin:0 auto; }}
     main {{ padding:32px 24px 48px; }}
+    .logo {{ height:56px; width:auto; display:block; margin-bottom:28px; }}
     .eyebrow {{ color:#bfdbfe; font-weight:bold; letter-spacing:.04em; text-transform:uppercase; font-size:13px; }}
     h1 {{ font-size:42px; margin:8px 0 12px; }}
     header p {{ max-width:850px; font-size:18px; }}
@@ -283,13 +288,19 @@ def build_index(data: dict) -> str:
     .location {{ color:var(--muted); margin-top:0; }}
     .tags {{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }}
     .tags span {{ background:#eef2ff; color:#1f2937; border-radius:999px; padding:4px 8px; font-size:12px; }}
+    .identity-box { background:#f8fbff; border:1px solid #dbeafe; border-radius:14px; padding:16px; margin-top:16px; }
+    .identity-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .identity-grid label { font-weight:bold; font-size:13px; }
+    .identity-grid input { width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; margin-top:6px; font:inherit; }
+    #identityStatus { display:none; color:#065f46; font-weight:bold; }
     footer {{ color:var(--muted); font-size:14px; padding-top:8px; }}
-    @media (max-width:720px) {{ h1 {{ font-size:32px; }} .event-card {{ grid-template-columns:1fr; gap:8px; }} }}
+    @media (max-width:720px) {{ h1 {{ font-size:32px; }} .event-card {{ grid-template-columns:1fr; gap:8px; }} .identity-grid {{ grid-template-columns:1fr; }} }}
   </style>
 </head>
 <body>
   <header>
     <div class="wrap">
+      <img class="logo" src="assets/also-logo.png" alt="ALSO logo">
       <div class="eyebrow">ALSO Nederland B.V.</div>
       <h1>{html.escape(calendar.get("name", "ALSO Cloud Events"))}</h1>
       <p>{html.escape(calendar.get("description", ""))}</p>
@@ -299,13 +310,26 @@ def build_index(data: dict) -> str:
     <section class="panel">
       <h2>Abonneer op de agenda</h2>
       <p>Voeg deze agenda één keer toe aan je eigen agenda-app. Nieuwe events, wijzigingen en verwijderingen worden daarna automatisch verwerkt zodra de agenda-app synchroniseert.</p>
-      <div class="button-row">
-        <a class="button tracked-link" href="outlook.html" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="" data-event-title="">Outlook Calendar</a>
-        <a class="button secondary tracked-link" href="{html.escape(webcal_url)}" data-action="subscribe_click" data-calendar-type="apple" data-event-id="" data-event-title="">Apple Calendar</a>
-        <a class="button light tracked-link" href="{html.escape(google_url)}" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="" data-event-title="">Google Calendar</a>
-        <a class="button light" href="admin.html">Event Builder</a>
+      <div class="identity-box">
+        <h3>Gegevens voor gebruiksregistratie</h3>
+        <p class="hint">Vul deze gegevens één keer in. We gebruiken dit om te zien welke partners de agenda gebruiken en welke events relevant zijn.</p>
+        <div class="identity-grid">
+          <label>Naam<input id="userName" autocomplete="name" placeholder="Voor- en achternaam"></label>
+          <label>Organisatie<input id="organization" autocomplete="organization" placeholder="Partnerorganisatie"></label>
+          <label>E-mailadres<input id="email" autocomplete="email" type="email" placeholder="naam@organisatie.nl"></label>
+        </div>
+        <div class="button-row">
+          <button class="button" onclick="saveIdentity()">Gegevens opslaan</button>
+          <button class="button light" onclick="clearIdentity()">Gegevens wissen</button>
+        </div>
+        <div id="identityStatus">Gegevens opgeslagen. Je kunt de agenda nu toevoegen.</div>
       </div>
-      <p class="hint">Outlook Calendar downloadt het kalenderbestand. Als Outlook Desktop gekoppeld is aan .ics-bestanden, opent Outlook automatisch. Outlook Web kan alsnog om een naam vragen; gebruik dan <strong>ALSO Cloud Agenda</strong>.</p>
+      <div class="button-row">
+        <a class="button tracked-link requires-identity" href="{html.escape(webcal_url)}" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="none" data-event-title="none">Outlook Calendar</a>
+        <a class="button secondary tracked-link requires-identity" href="{html.escape(webcal_url)}" data-action="subscribe_click" data-calendar-type="apple" data-event-id="none" data-event-title="none">Apple Calendar</a>
+        <a class="button light tracked-link requires-identity" href="{html.escape(google_url)}" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="none" data-event-title="none">Google Calendar</a>
+      </div>
+      <p class="hint">Voor Outlook gebruiken we de abonnementslink via <strong>webcal://</strong>. Als Windows vraagt welke app je wilt gebruiken, kies dan Outlook Desktop. Plak anders de webcal-link handmatig via Outlook → Agenda toevoegen → Abonneren vanaf internet.</p>
       {privacy_html}
       <p>Directe abonnementslink:</p>
       <p><code>{html.escape(https_ics_url)}</code></p>
@@ -346,6 +370,33 @@ def build_index(data: dict) -> str:
       return value;
     }}
 
+
+    function normalize(value, fallback) {
+      const v = (value || "").trim();
+      return v || fallback || "unknown";
+    }
+    function storageKey() { return (window.ALSO_TRACKING_CONFIG || {}).storageKey || "alsoCloudEventsUser"; }
+    function getIdentity() {
+      try { return JSON.parse(localStorage.getItem(storageKey()) || "{}"); } catch(e) { return {}; }
+    }
+    function setIdentity(identity) { localStorage.setItem(storageKey(), JSON.stringify(identity)); }
+    function loadIdentity() {
+      const identity = getIdentity();
+      const n = document.getElementById("userName"), o = document.getElementById("organization"), e = document.getElementById("email"), s = document.getElementById("identityStatus");
+      if (!n || !o || !e) return;
+      n.value = identity.userName || ""; o.value = identity.organization || ""; e.value = identity.email || "";
+      if (identity.userName && identity.organization && identity.email && s) s.style.display = "block";
+    }
+    function saveIdentity() {
+      const identity = { userName: normalize(document.getElementById("userName").value, ""), organization: normalize(document.getElementById("organization").value, ""), email: normalize(document.getElementById("email").value, "") };
+      if (!identity.userName || !identity.organization || !identity.email || identity.userName === "unknown" || identity.organization === "unknown" || identity.email === "unknown") { alert("Vul naam, organisatie en e-mailadres in voordat je de agenda toevoegt."); return false; }
+      setIdentity(identity); document.getElementById("identityStatus").style.display = "block";
+      trackUsage({ action: "identity_saved", calendarType: "identity", eventId: "none", eventTitle: "none" });
+      return true;
+    }
+    function clearIdentity() { localStorage.removeItem(storageKey()); loadIdentity(); document.getElementById("identityStatus").style.display = "none"; }
+    function ensureIdentity() { const i = getIdentity(); return (i.userName && i.organization && i.email) || saveIdentity(); }
+
     async function trackUsage(payload) {{
       const config = window.ALSO_TRACKING_CONFIG || {{}};
       if (!config.enabled || !config.endpointUrl) return;
@@ -353,17 +404,20 @@ def build_index(data: dict) -> str:
       const body = {{
         timestampUtc: new Date().toISOString(),
         source: config.source || "ALSO Cloud Events",
-        action: payload.action || "",
-        calendarType: payload.calendarType || "",
-        eventId: payload.eventId || "",
-        eventTitle: payload.eventTitle || "",
-        partnerCode: getQueryParam("partner") || getQueryParam("partnerCode") || "",
-        campaign: getQueryParam("campaign") || getQueryParam("utm_campaign") || "",
+        action: normalize(payload.action, "unknown"),
+        calendarType: normalize(payload.calendarType, "none"),
+        eventId: normalize(payload.eventId, "none"),
+        eventTitle: normalize(payload.eventTitle, "none"),
+        partnerCode: normalize(getQueryParam("partner") || getQueryParam("partnerCode"), "direct"),
+        campaign: normalize(getQueryParam("campaign") || getQueryParam("utm_campaign"), "direct"),
         pageUrl: window.location.href,
-        referrer: document.referrer || "",
-        userAgent: navigator.userAgent || "",
-        language: navigator.language || "",
-        sessionId: getSessionId()
+        referrer: normalize(document.referrer, "direct"),
+        userAgent: normalize(navigator.userAgent, "unknown"),
+        language: normalize(navigator.language, "unknown"),
+        sessionId: getSessionId(),
+        userName: normalize(getIdentity().userName, "anonymous"),
+        organization: normalize(getIdentity().organization, "unknown"),
+        email: normalize(getIdentity().email, "unknown")
       }};
 
       try {{
@@ -371,12 +425,12 @@ def build_index(data: dict) -> str:
         if (navigator.sendBeacon) {{
           navigator.sendBeacon(config.endpointUrl, blob);
         }} else {{
-          await fetch(config.endpointUrl, {{
+          fetch(config.endpointUrl, {{
             method: "POST",
             headers: {{ "Content-Type": "application/json" }},
             body: JSON.stringify(body),
             keepalive: true
-          }});
+          }}).catch(() => {{}});
         }}
       }} catch (e) {{
         console.warn("Tracking failed", e);
@@ -384,7 +438,8 @@ def build_index(data: dict) -> str:
     }}
 
     document.querySelectorAll(".tracked-link").forEach(link => {{
-      link.addEventListener("click", () => {{
+      link.addEventListener("click", (event) => {{
+        if (link.classList.contains("requires-identity") && !ensureIdentity()) {{ event.preventDefault(); return; }}
         trackUsage({{
           action: link.dataset.action,
           calendarType: link.dataset.calendarType,
@@ -394,7 +449,8 @@ def build_index(data: dict) -> str:
       }});
     }});
 
-    trackUsage({{ action: "page_view", calendarType: "", eventId: "", eventTitle: "" }});
+    loadIdentity();
+    trackUsage({{ action: "page_view", calendarType: "none", eventId: "none", eventTitle: "none" }});
 
     const filters = document.querySelectorAll('.filter');
     const cards = document.querySelectorAll('.event-card');
@@ -554,11 +610,11 @@ def build_admin(data: dict) -> str:
     options = "\\n".join(f'<option value="{html.escape(k)}">{html.escape(v.get("label", k))}</option>' for k, v in categories.items())
     return f"""<!doctype html>
 <html lang="nl">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Event Builder - ALSO Cloud Events</title>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin - ALSO Cloud Events</title>
 <style>
 body{{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#1f2937;line-height:1.5}}main{{max-width:900px;margin:0 auto;padding:32px 24px}}.panel{{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:24px}}label{{display:block;font-weight:bold;margin-top:14px}}input,select,textarea{{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;margin-top:6px;font:inherit}}textarea{{min-height:120px}}button{{background:#111827;color:white;padding:12px 18px;border:0;border-radius:8px;font-weight:bold;margin-top:16px;cursor:pointer}}pre{{white-space:pre-wrap;background:#111827;color:white;padding:18px;border-radius:12px;overflow:auto}}code{{background:#f3f4f6;padding:3px 6px;border-radius:6px}}
 </style></head>
-<body><main><section class="panel"><h1>Event Builder</h1><p>Vul hieronder een event in. Deze pagina maakt automatisch een correct YAML-blok. Kopieer het resultaat naar <code>events.yml</code> onder <code>events:</code>.</p>
+<body><main><section class="panel"><img src="assets/also-logo.png" alt="ALSO logo" style="height:50px;margin-bottom:18px"><h1>ALSO Cloud Events Admin</h1><p>Interne beheerpagina voor ALSO-medewerkers. Deel deze pagina niet met partners.</p><h2>Event Builder</h2><p>Vul hieronder een event in. Deze pagina maakt automatisch een correct YAML-blok. Kopieer het resultaat naar <code>events.yml</code> onder <code>events:</code>.</p>
 <label>Titel</label><input id="title" placeholder="🟦 Webinar - Azure Backup">
 <label>Unieke ID</label><input id="id" placeholder="webinar-azure-backup-2026-10-15">
 <label>Categorie</label><select id="category">{options}</select>

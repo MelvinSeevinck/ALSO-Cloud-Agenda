@@ -88,3 +88,14 @@ Deze pagina:
 - voorkomt verwarring tussen een statische .ics-import en een dynamisch agenda-abonnement.
 
 Outlook ondersteunt niet betrouwbaar dat een website de abonnementslink automatisch in het veld invult. Daarom is dit de meest betrouwbare route voor zakelijke Outlook-gebruikers.
+
+
+## V7
+
+- Publieke pagina zonder Event Builder-knop.
+- Adminpagina via `/admin.html`.
+- ALSO-logo toegevoegd.
+- Outlook gebruikt `webcal://` voor abonnement, niet een statische `.ics` download.
+- Naam, organisatie en e-mailadres zijn verplicht vóór kalenderkliks.
+- Tracking vult lege waarden met `none`, `direct` of `unknown`.
+- Power Automate schema uitgebreid met `userName`, `organization` en `email`.

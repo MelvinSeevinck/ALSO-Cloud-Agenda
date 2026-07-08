@@ -5,6 +5,11 @@ calendar:
   timezone: "Europe/Amsterdam"
   site_url: "https://melvinseevinck.github.io/ALSO-Cloud-Agenda/"
 
+identity:
+  enabled: true
+  require_before_calendar_click: true
+  storage_key: "alsoCloudEventsUser"
+
 tracking:
   enabled: true
   # Plak hier straks de HTTP POST URL uit Power Automate.
