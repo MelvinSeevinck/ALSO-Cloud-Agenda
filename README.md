@@ -113,3 +113,10 @@ Zonder geldige gegevens kan een bezoeker niet doorklikken naar:
 - registratieknoppen
 
 De kalenderknoppen worden visueel gedimd totdat de gegevens zijn opgeslagen.
+
+
+## V9 wijziging
+
+De adminpagina ondersteunt nu bestaande events laden, wijzigen, verwijderen en nieuwe events toevoegen. De pagina genereert daarna YAML voor de `events:`-sectie in `events.yml`.
+
+GitHub Pages blijft statisch: de adminpagina schrijft niet automatisch terug naar GitHub. Kopieer de gegenereerde YAML naar `events.yml` en commit de wijziging.
