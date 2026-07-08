@@ -99,3 +99,17 @@ Outlook ondersteunt niet betrouwbaar dat een website de abonnementslink automati
 - Naam, organisatie en e-mailadres zijn verplicht vóór kalenderkliks.
 - Tracking vult lege waarden met `none`, `direct` of `unknown`.
 - Power Automate schema uitgebreid met `userName`, `organization` en `email`.
+
+
+## V8 wijziging
+
+De velden naam, organisatie en e-mailadres zijn verplicht gemaakt voor agenda-acties.
+
+Zonder geldige gegevens kan een bezoeker niet doorklikken naar:
+- Outlook Calendar
+- Apple Calendar
+- Google Calendar
+- event-specifieke kalenderknoppen
+- registratieknoppen
+
+De kalenderknoppen worden visueel gedimd totdat de gegevens zijn opgeslagen.

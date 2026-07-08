@@ -269,6 +269,7 @@ def build_index(data: dict) -> str:
     .button {{ display:inline-block; background:var(--dark); color:white; padding:12px 18px; border-radius:10px; text-decoration:none; font-weight:bold; }}
     .button.secondary {{ background:#374151; }}
     .button.light {{ background:#eef2ff; color:#111827; }}
+    .button.disabled, .small-button.disabled {{ opacity:.45; cursor:not-allowed; pointer-events:auto; }}
     .small-button {{ display:inline-block; background:#111827; color:white; padding:9px 13px; border-radius:8px; text-decoration:none; font-weight:bold; margin:4px 6px 4px 0; }}
     .small-button.secondary {{ background:#374151; }}
     .small-button.light {{ background:#eef2ff; color:#111827; }}
@@ -380,22 +381,51 @@ def build_index(data: dict) -> str:
       try {{ return JSON.parse(localStorage.getItem(storageKey()) || "{{}}"); }} catch(e) {{ return {{}}; }}
     }}
     function setIdentity(identity) {{ localStorage.setItem(storageKey(), JSON.stringify(identity)); }}
+    function hasValidIdentity() {{
+      const identity = getIdentity();
+      return !!(identity.userName && identity.organization && identity.email && identity.userName !== "unknown" && identity.organization !== "unknown" && identity.email !== "unknown");
+    }}
+    function updateCalendarButtons() {{
+      const enabled = hasValidIdentity();
+      document.querySelectorAll(".requires-identity").forEach(btn => {{
+        btn.classList.toggle("disabled", !enabled);
+        btn.setAttribute("aria-disabled", enabled ? "false" : "true");
+        btn.title = enabled ? "" : "Vul eerst naam, organisatie en e-mailadres in.";
+      }});
+    }}
     function loadIdentity() {{
       const identity = getIdentity();
       const n = document.getElementById("userName"), o = document.getElementById("organization"), e = document.getElementById("email"), s = document.getElementById("identityStatus");
       if (!n || !o || !e) return;
       n.value = identity.userName || ""; o.value = identity.organization || ""; e.value = identity.email || "";
-      if (identity.userName && identity.organization && identity.email && s) s.style.display = "block";
+      if (hasValidIdentity() && s) s.style.display = "block";
+      updateCalendarButtons();
     }}
     function saveIdentity() {{
       const identity = {{ userName: normalize(document.getElementById("userName").value, ""), organization: normalize(document.getElementById("organization").value, ""), email: normalize(document.getElementById("email").value, "") }};
-      if (!identity.userName || !identity.organization || !identity.email || identity.userName === "unknown" || identity.organization === "unknown" || identity.email === "unknown") {{ alert("Vul naam, organisatie en e-mailadres in voordat je de agenda toevoegt."); return false; }}
-      setIdentity(identity); document.getElementById("identityStatus").style.display = "block";
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email);
+      if (!identity.userName || !identity.organization || !identity.email || identity.userName === "unknown" || identity.organization === "unknown" || identity.email === "unknown" || !emailOk) {{
+        alert("Vul eerst een naam, organisatie en geldig e-mailadres in voordat je de agenda toevoegt.");
+        return false;
+      }}
+      setIdentity(identity);
+      document.getElementById("identityStatus").style.display = "block";
+      updateCalendarButtons();
       trackUsage({{ action: "identity_saved", calendarType: "identity", eventId: "none", eventTitle: "none" }});
       return true;
     }}
-    function clearIdentity() {{ localStorage.removeItem(storageKey()); loadIdentity(); document.getElementById("identityStatus").style.display = "none"; }}
-    function ensureIdentity() {{ const i = getIdentity(); return (i.userName && i.organization && i.email) || saveIdentity(); }}
+    function clearIdentity() {{
+      localStorage.removeItem(storageKey());
+      document.getElementById("identityStatus").style.display = "none";
+      loadIdentity();
+      updateCalendarButtons();
+    }}
+    function ensureIdentity() {{
+      if (hasValidIdentity()) return true;
+      alert("Vul eerst je naam, organisatie en e-mailadres in en klik op 'Gegevens opslaan'. Daarna kun je de agenda toevoegen.");
+      document.getElementById("userName").focus();
+      return false;
+    }}
 
     async function trackUsage(payload) {{
       const config = window.ALSO_TRACKING_CONFIG || {{}};
@@ -504,6 +534,7 @@ def build_outlook_page(data: dict) -> str:
     .button-row {{ display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; }}
     .button {{ display:inline-block; background:var(--dark); color:white; padding:12px 18px; border-radius:10px; text-decoration:none; font-weight:bold; border:0; cursor:pointer; font:inherit; }}
     .button.light {{ background:#eef2ff; color:#111827; }}
+    .button.disabled, .small-button.disabled {{ opacity:.45; cursor:not-allowed; pointer-events:auto; }}
     code {{ display:block; background:#f3f4f6; padding:12px; border-radius:10px; word-break:break-all; margin:12px 0; }}
     .step {{ display:grid; grid-template-columns:42px 1fr; gap:14px; padding:16px 0; border-top:1px solid var(--border); }}
     .step:first-of-type {{ border-top:0; }}
