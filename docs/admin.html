@@ -1,1 +1,57 @@
-<!doctype html><title>Event Builder</title>
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin - ALSO Cloud Events</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#1f2937;line-height:1.5}main{max-width:900px;margin:0 auto;padding:32px 24px}.panel{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:24px}label{display:block;font-weight:bold;margin-top:14px}input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;margin-top:6px;font:inherit}textarea{min-height:120px}button{background:#111827;color:white;padding:12px 18px;border:0;border-radius:8px;font-weight:bold;margin-top:16px;cursor:pointer}pre{white-space:pre-wrap;background:#111827;color:white;padding:18px;border-radius:12px;overflow:auto}code{background:#f3f4f6;padding:3px 6px;border-radius:6px}
+</style></head>
+<body><main><section class="panel"><img src="assets/also-logo.png" alt="ALSO logo" style="height:50px;margin-bottom:18px"><h1>ALSO Cloud Events Admin</h1><p>Interne beheerpagina voor ALSO-medewerkers. Deel deze pagina niet met partners.</p><h2>Event Builder</h2><p>Vul hieronder een event in. Deze pagina maakt automatisch een correct YAML-blok. Kopieer het resultaat naar <code>events.yml</code> onder <code>events:</code>.</p>
+<label>Titel</label><input id="title" placeholder="🟦 Webinar - Azure Backup">
+<label>Unieke ID</label><input id="id" placeholder="webinar-azure-backup-2026-10-15">
+<label>Categorie</label><select id="category"><option value="webinar">🟦 Webinar</option>\n<option value="solution-training">🟩 Solution Training</option>\n<option value="workshop">🟨 Workshop</option>\n<option value="partner-event">🟪 Partner Event</option>\n<option value="cloud-summit">⭐ ALSO Cloud Summit</option>\n<option value="microsoft-event">🔴 Microsoft Event</option></select>
+<label>Featured event?</label><select id="featured"><option value="false">Nee</option><option value="true">Ja</option></select>
+<label>Hele dag?</label><select id="allDay"><option value="false">Nee, met start- en eindtijd</option><option value="true">Ja, hele dag</option></select>
+<label>Datum</label><input id="date" type="date">
+<label>Starttijd</label><input id="startTime" type="time" value="10:00">
+<label>Eindtijd</label><input id="endTime" type="time" value="11:00">
+<label>Locatie</label><input id="location" placeholder="Microsoft Teams">
+<label>Registratie URL</label><input id="registration" placeholder="https://...">
+<label>Tags, gescheiden met komma's</label><input id="tags" placeholder="Azure, Security, AI">
+<label>Beschrijving</label><textarea id="description" placeholder="Korte beschrijving van het event."></textarea>
+<button onclick="generateYaml()">Genereer YAML</button> <button onclick="copyYaml()">Kopieer resultaat</button></section>
+<section class="panel"><h2>Resultaat</h2><pre id="output">Vul de velden in en klik op “Genereer YAML”.</pre></section></main>
+<script>
+function slugify(text){return text.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}
+function indentDescription(text){if(!text.trim()) return "      Meer informatie volgt binnenkort."; return text.split("\n").map(line=>"      "+line).join("\n")}
+function tagBlock(text){const tags=text.split(',').map(t=>t.trim()).filter(Boolean); if(!tags.length)return "    tags: []\n"; return "    tags:\n"+tags.map(t=>"      - "+t).join("\n")+"\n"}
+function generateYaml(){
+ const title=document.getElementById('title').value||"Titel van het event";
+ const id=document.getElementById('id').value||slugify(title);
+ const category=document.getElementById('category').value;
+ const featured=document.getElementById('featured').value==="true";
+ const allDay=document.getElementById('allDay').value==="true";
+ const date=document.getElementById('date').value||"2026-01-01";
+ const startTime=document.getElementById('startTime').value||"10:00";
+ const endTime=document.getElementById('endTime').value||"11:00";
+ const location=document.getElementById('location').value||"Microsoft Teams";
+ const registration=document.getElementById('registration').value||"";
+ const tags=document.getElementById('tags').value||"";
+ const description=document.getElementById('description').value||"Meer informatie volgt binnenkort.";
+ let yaml=`  - id: "${id}"
+    title: "${title}"
+`;
+ if(allDay){yaml+=`    date: "${date}"
+    all_day: true
+`;}else{yaml+=`    start: "${date}T${startTime}:00"
+    end: "${date}T${endTime}:00"
+    all_day: false
+`;}
+ yaml+=`    location: "${location}"
+    category: "${category}"
+    featured: ${featured}
+${tagBlock(tags)}    registration_url: "${registration}"
+    description: |
+${indentDescription(description)}`;
+ document.getElementById('output').textContent=yaml;
+}
+function copyYaml(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
+</script></body></html>
