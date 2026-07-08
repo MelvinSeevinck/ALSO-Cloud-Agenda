@@ -76,3 +76,15 @@ filter_click
 ```
 
 Bij `event_calendar_click` worden automatisch `EventId`, `EventTitle` en `CalendarType` meegestuurd. Daardoor hoeft de Power Automate-flow niet aangepast te worden wanneer je nieuwe events toevoegt.
+
+
+## Outlook wizard
+
+Vanaf v6 gaat de Outlook-knop naar `outlook.html`.
+
+Deze pagina:
+- kopieert de agenda-abonnementslink naar het klembord;
+- opent Outlook Web op de pagina "Subscribe from web";
+- voorkomt verwarring tussen een statische .ics-import en een dynamisch agenda-abonnement.
+
+Outlook ondersteunt niet betrouwbaar dat een website de abonnementslink automatisch in het veld invult. Daarom is dit de meest betrouwbare route voor zakelijke Outlook-gebruikers.

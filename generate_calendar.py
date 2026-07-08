@@ -300,7 +300,7 @@ def build_index(data: dict) -> str:
       <h2>Abonneer op de agenda</h2>
       <p>Voeg deze agenda één keer toe aan je eigen agenda-app. Nieuwe events, wijzigingen en verwijderingen worden daarna automatisch verwerkt zodra de agenda-app synchroniseert.</p>
       <div class="button-row">
-        <a class="button tracked-link" href="{html.escape(outlook_desktop_url)}" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="" data-event-title="">Outlook Calendar</a>
+        <a class="button tracked-link" href="outlook.html" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="" data-event-title="">Outlook Calendar</a>
         <a class="button secondary tracked-link" href="{html.escape(webcal_url)}" data-action="subscribe_click" data-calendar-type="apple" data-event-id="" data-event-title="">Apple Calendar</a>
         <a class="button light tracked-link" href="{html.escape(google_url)}" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="" data-event-title="">Google Calendar</a>
         <a class="button light" href="admin.html">Event Builder</a>
@@ -425,6 +425,130 @@ def build_index(data: dict) -> str:
 </html>
 """
 
+def build_outlook_page(data: dict) -> str:
+    calendar = data.get("calendar", {})
+    site_url = calendar.get("site_url", "").rstrip("/") + "/"
+    https_ics_url = site_url + "calendar.ics"
+    outlook_add_url = "https://outlook.office.com/calendar/0/addfromweb"
+
+    return f"""<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Outlook Calendar - ALSO Cloud Events</title>
+  <style>
+    :root {{ --bg:#f4f6fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --dark:#111827; --border:#e5e7eb; --accent:#2563eb; }}
+    * {{ box-sizing:border-box; }}
+    body {{ margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.55; }}
+    header {{ background:linear-gradient(135deg,#111827,#1f2937); color:white; padding:44px 24px; }}
+    main, .wrap {{ max-width:920px; margin:0 auto; }}
+    main {{ padding:32px 24px 48px; }}
+    .panel {{ background:white; border:1px solid var(--border); border-radius:18px; padding:24px; margin-bottom:24px; box-shadow:0 1px 3px rgba(0,0,0,.04); }}
+    .button-row {{ display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; }}
+    .button {{ display:inline-block; background:var(--dark); color:white; padding:12px 18px; border-radius:10px; text-decoration:none; font-weight:bold; border:0; cursor:pointer; font:inherit; }}
+    .button.light {{ background:#eef2ff; color:#111827; }}
+    code {{ display:block; background:#f3f4f6; padding:12px; border-radius:10px; word-break:break-all; margin:12px 0; }}
+    .step {{ display:grid; grid-template-columns:42px 1fr; gap:14px; padding:16px 0; border-top:1px solid var(--border); }}
+    .step:first-of-type {{ border-top:0; }}
+    .num {{ width:32px; height:32px; border-radius:999px; background:#111827; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; }}
+    .hint {{ color:var(--muted); font-size:14px; }}
+    .success {{ display:none; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; border-radius:12px; padding:12px; margin-top:12px; }}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Outlook Calendar toevoegen</h1>
+      <p>Voeg de ALSO Cloud Agenda toe als abonnement. Zo blijven nieuwe events en wijzigingen automatisch bijgewerkt.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Snelle route</h2>
+      <p>De abonnementslink wordt automatisch gekopieerd. Daarna opent Outlook Web. Plak de link daar met <strong>Ctrl+V</strong> en klik op <strong>Import</strong>.</p>
+
+      <div class="button-row">
+        <button class="button" onclick="copyAndOpenOutlook()">Kopieer link en open Outlook</button>
+        <button class="button light" onclick="copyCalendarUrl()">Alleen link kopiëren</button>
+        <a class="button light" href="index.html">Terug naar agenda</a>
+      </div>
+
+      <div id="copySuccess" class="success">De agenda-URL is gekopieerd. Plak deze in Outlook met Ctrl+V.</div>
+
+      <p class="hint">Outlook ondersteunt helaas niet betrouwbaar dat websites de abonnementslink automatisch in het veld plaatsen. Deze route voorkomt dat je per ongeluk een statische .ics-import doet.</p>
+
+      <h3>Agenda-abonnementslink</h3>
+      <code id="calendarUrl">{html.escape(https_ics_url)}</code>
+    </section>
+
+    <section class="panel">
+      <h2>Handmatige stappen in Outlook</h2>
+
+      <div class="step">
+        <div class="num">1</div>
+        <div>
+          <strong>Open Outlook Agenda</strong>
+          <p>Ga naar <em>Agenda toevoegen</em> en kies <em>Abonneren vanaf internet</em>.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">2</div>
+        <div>
+          <strong>Plak de URL</strong>
+          <p>Plak de gekopieerde link met <strong>Ctrl+V</strong>.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">3</div>
+        <div>
+          <strong>Noem de agenda: ALSO Cloud Agenda</strong>
+          <p>Als Outlook om een naam vraagt, gebruik dan <strong>ALSO Cloud Agenda</strong>.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">4</div>
+        <div>
+          <strong>Klik op Import</strong>
+          <p>De agenda is daarna als abonnement toegevoegd en wordt automatisch bijgewerkt.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const calendarUrl = {json.dumps(https_ics_url)};
+    const outlookUrl = {json.dumps(outlook_add_url)};
+
+    async function copyCalendarUrl() {{
+      try {{
+        await navigator.clipboard.writeText(calendarUrl);
+        document.getElementById("copySuccess").style.display = "block";
+      }} catch (e) {{
+        const text = document.createElement("textarea");
+        text.value = calendarUrl;
+        document.body.appendChild(text);
+        text.select();
+        document.execCommand("copy");
+        document.body.removeChild(text);
+        document.getElementById("copySuccess").style.display = "block";
+      }}
+    }}
+
+    async function copyAndOpenOutlook() {{
+      await copyCalendarUrl();
+      window.open(outlookUrl, "_blank", "noopener");
+    }}
+  </script>
+</body>
+</html>
+"""
+
+
 def build_admin(data: dict) -> str:
     categories = data.get("categories", {})
     options = "\\n".join(f'<option value="{html.escape(k)}">{html.escape(v.get("label", k))}</option>' for k, v in categories.items())
@@ -493,6 +617,7 @@ def main():
     (DOCS / "calendar.ics").write_text(build_ics(data), encoding="utf-8")
     (DOCS / "index.html").write_text(build_index(data), encoding="utf-8")
     (DOCS / "admin.html").write_text(build_admin(data), encoding="utf-8")
+    (DOCS / "outlook.html").write_text(build_outlook_page(data), encoding="utf-8")
     (DOCS / "events.json").write_text(json.dumps(data.get("events", []), ensure_ascii=False, indent=2), encoding="utf-8")
     print("Generated docs/calendar.ics")
     print("Generated docs/index.html")
