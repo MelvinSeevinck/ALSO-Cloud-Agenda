@@ -1,3 +1,450 @@
-<!doctype html><html lang='nl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Admin</title><style>body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#111827}header{background:#111827;color:white;padding:40px 24px}.wrap,main{max-width:1120px;margin:0 auto}.logo{height:52px}.panel{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin:24px}.button,.small-button{display:inline-block;background:#111827;color:white;padding:10px 14px;border-radius:9px;text-decoration:none;font-weight:bold;border:0;cursor:pointer}.secondary{background:#374151}.light{background:#eef2ff;color:#111827}.event-card{display:grid;grid-template-columns:170px 1fr;gap:20px;border-top:1px solid #e5e7eb;padding:22px 0}.featured{border:1px solid #dbeafe;background:#f8fbff;border-radius:16px;padding:22px}.tags span{background:#eef2ff;border-radius:999px;padding:4px 8px;margin:3px;display:inline-block}code{background:#f3f4f6;padding:4px;border-radius:6px;word-break:break-all}input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px}.grid{display:grid;grid-template-columns:340px 1fr;gap:18px}.event-item{border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}.active{border-color:#2563eb;background:#eff6ff}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stats div{background:#f8fbff;border:1px solid #dbeafe;border-radius:12px;padding:14px}.invalid{border-color:#b91c1c!important;background:#fef2f2}.status{padding:12px;border-radius:10px;margin-top:10px}.okmsg{background:#ecfdf5}.errmsg{background:#fef2f2;color:#991b1b}pre{background:#111827;color:white;padding:14px;border-radius:12px;white-space:pre-wrap;max-height:360px;overflow:auto}@media(max-width:800px){.event-card,.grid,.stats{grid-template-columns:1fr}}</style></head><body><header><div class='wrap'><img src='assets/also-logo.svg' class='logo'><h1>ALSO Cloud Events Admin</h1><p>V15 Clean Full Replace</p></div></header><main><section class='panel'><h2>Systeemstatus</h2><div id='systemStatus' class='status'>Laden...</div></section><section class='panel'><h2>Publiceren</h2><label>Admin key<input id='adminKeyInput' type='password'></label><p><button onclick='saveAdminKey()'>Key opslaan</button> <button onclick='loadEvents()'>Events laden</button> <button onclick='newEvent()'>Nieuw event</button> <button onclick='publishToGitHub()'>Publiceer naar GitHub</button> <a class='button light' href='index.html'>Publieke pagina</a></p><div id='publishStatus'></div></section><section class='panel'><div class='stats'><div><b id='statTotal'>0</b><br>Totaal</div><div><b id='statPublished'>0</b><br>Published</div><div><b id='statDraft'>0</b><br>Draft</div><div><b id='statArchived'>0</b><br>Archived</div></div></section><div class='grid'><section class='panel'><h2>Events</h2><input id='listSearch' placeholder='Zoeken'><select id='statusFilter'><option value='all'>Alle</option><option value='published'>Published</option><option value='draft'>Draft</option><option value='archived'>Archived</option></select><div id='eventList'></div></section><section class='panel'><h2>Event</h2><label>Titel<input id='title'></label><label>Unieke ID<input id='eventId'></label><label>Status<select id='statusField'><option value='published'>Published</option><option value='draft'>Draft</option><option value='archived'>Archived</option></select></label><label>Categorie<select id='category'><option value='webinar'>🟦 Webinar</option><option value='solution-training'>🟩 Solution Training</option><option value='workshop'>🟨 Workshop</option><option value='partner-event'>🟪 Partner Event</option><option value='cloud-summit'>⭐ ALSO Cloud Summit</option><option value='microsoft-event'>🔴 Microsoft Event</option></select></label><label>Featured<select id='featured'><option value='false'>Nee</option><option value='true'>Ja</option></select></label><label>Hele dag<select id='allDay'><option value='false'>Nee</option><option value='true'>Ja</option></select></label><label>Datum<input id='date' type='date'></label><div id='timeFields'><label>Start<input id='startTime' type='time' value='10:00'></label><label>Eind<input id='endTime' type='time' value='11:00'></label></div><label>Locatie<input id='location'></label><label>Registratie URL<input id='registration'></label><label>Banner URL<input id='bannerUrl'></label><label>Tags<input id='tags'></label><label>Beschrijving<textarea id='description'></textarea></label><p><button onclick='saveEvent()'>Opslaan</button> <button onclick='duplicateEvent()'>Dupliceren</button> <button onclick='archiveEvent()'>Archiveren</button> <button onclick='deleteEvent()'>Verwijderen</button> <button onclick='copyJson()'>Kopieer JSON</button></p></section></div><div class='grid'><section class='panel'><h2>Preview</h2><div id='preview'></div></section><section class='panel'><h2>JSON</h2><pre id='output'></pre></section></div></main><script>const categories={"webinar": {"label": "🟦 Webinar"}, "solution-training": {"label": "🟩 Solution Training"}, "workshop": {"label": "🟨 Workshop"}, "partner-event": {"label": "🟪 Partner Event"}, "cloud-summit": {"label": "⭐ ALSO Cloud Summit"}, "microsoft-event": {"label": "🔴 Microsoft Event"}};const publishConfig={"enabled": true, "endpointUrl": "https://default95924808304441779c1b713746ffab.95.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4325ffde425047dd94d1db6cd4362879/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TFfLGBWAxDmA9rSGMoPnEHHjdXcreusPslXZi2I1AKY", "adminKey": "", "repository": "MelvinSeevinck/ALSO-Cloud-Agenda", "branch": "main", "filePath": "data/events-source.json"};
-let events=[];let selectedId=null;const $=id=>document.getElementById(id);function slug(v){return(v||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}function day(e){return e.allDay?e.date:String(e.start||"").slice(0,10)}function msg(m,t){publishStatus.textContent=m;publishStatus.className="status "+t}function saveAdminKey(){sessionStorage.setItem("alsoAdminPublishKey",adminKeyInput.value.trim());msg("Key opgeslagen","okmsg")}function key(){return sessionStorage.getItem("alsoAdminPublishKey")||adminKeyInput.value.trim()}async function loadEvents(){try{const r=await fetch("events-admin.json?ts="+Date.now());if(!r.ok)throw new Error("HTTP "+r.status);events=await r.json();systemStatus.textContent="events-admin.json geladen: "+events.length+" event(s)";systemStatus.className="status okmsg";render();if(events.length)selectEvent(events[0].id)}catch(e){systemStatus.textContent="Laden mislukt: "+e.message;systemStatus.className="status errmsg"}}function render(){statTotal.textContent=events.length;statPublished.textContent=events.filter(e=>e.status==="published").length;statDraft.textContent=events.filter(e=>e.status==="draft").length;statArchived.textContent=events.filter(e=>e.status==="archived").length;renderList();output.textContent=JSON.stringify(events,null,2)}function renderList(){const q=(listSearch.value||"").toLowerCase(),s=statusFilter.value;eventList.innerHTML=events.filter(e=>(s==="all"||e.status===s)&&(!q||JSON.stringify(e).toLowerCase().includes(q))).map(e=>`<div class="event-item ${e.id===selectedId?"active":""}" onclick="selectEvent('${e.id}')"><b>${e.title}</b><br>${e.status} - ${day(e)}</div>`).join("")||"<p>Geen events</p>"}function selectEvent(id){selectedId=id;const e=events.find(x=>x.id===id);if(!e)return;title.value=e.title||"";eventId.value=e.id||"";statusField.value=e.status||"draft";category.value=e.category||"webinar";featured.value=String(!!e.featured);allDay.value=String(!!e.allDay);date.value=e.allDay?e.date:String(e.start||"").slice(0,10);startTime.value=e.allDay?"10:00":String((e.start||"T10:00").split("T")[1]).slice(0,5);endTime.value=e.allDay?"11:00":String((e.end||"T11:00").split("T")[1]).slice(0,5);location.value=e.location||"";registration.value=e.registrationUrl||"";bannerUrl.value=e.bannerUrl||"";tags.value=(e.tags||[]).join(", ");description.value=e.description||"";toggleTime();preview();renderList()}function newEvent(){selectedId=null;["title","eventId","date","location","registration","bannerUrl","tags","description"].forEach(i=>$(i).value="");statusField.value="draft";featured.value="false";allDay.value="false";startTime.value="10:00";endTime.value="11:00";preview()}function toggleTime(){timeFields.style.display=allDay.value==="true"?"none":"block"}function validate(){for(const el of [title,eventId,statusField,category,featured,allDay,date,location,registration,tags,description]){if(!(el.value||"").trim()){el.classList.add("invalid");msg("Vul alle verplichte velden in","errmsg");return false}else el.classList.remove("invalid")}if(registration.value&&!/^https?:\/\//i.test(registration.value)){msg("Registratie URL moet starten met https:// of http://","errmsg");return false}if(events.some(e=>e.id===eventId.value.trim()&&e.id!==selectedId)){msg("Dubbele ID","errmsg");return false}return true}function read(){const e={id:eventId.value.trim(),title:title.value.trim(),status:statusField.value,location:location.value.trim(),category:category.value,featured:featured.value==="true",tags:tags.value.split(",").map(x=>x.trim()).filter(Boolean),registrationUrl:registration.value.trim(),bannerUrl:bannerUrl.value.trim(),description:description.value.trim()};if(allDay.value==="true"){e.date=date.value;e.allDay=true}else{e.start=`${date.value}T${startTime.value||"10:00"}:00`;e.end=`${date.value}T${endTime.value||"11:00"}:00`;e.allDay=false}return e}function saveEvent(){if(!validate())return false;const e=read();const i=events.findIndex(x=>x.id===selectedId||x.id===e.id);if(i>=0)events[i]=e;else events.push(e);selectedId=e.id;events.sort((a,b)=>(day(a)||"").localeCompare(day(b)||""));render();selectEvent(e.id);msg("Lokaal opgeslagen","okmsg");return true}function duplicateEvent(){if(!selectedId)return;const b=events.find(e=>e.id===selectedId),c={...b,id:b.id+"-copy",title:b.title+" kopie",status:"draft"};events.push(c);render();selectEvent(c.id)}function archiveEvent(){if(!selectedId)return;events.find(e=>e.id===selectedId).status="archived";render();selectEvent(selectedId)}function deleteEvent(){if(!selectedId||!confirm("Verwijderen?"))return;events=events.filter(e=>e.id!==selectedId);selectedId=null;newEvent();render()}function preview(){preview.innerHTML=`<h3>${title.value||"Nieuw event"}</h3><p>${date.value||"Geen datum"} - ${location.value||"Geen locatie"} - ${statusField.value}</p><p>${(description.value||"").replace(/\n/g,"<br>")}</p>`}async function publishToGitHub(){if(!saveEvent())return;if(!key())return msg("Vul admin key in","errmsg");try{msg("Publiceren gestart...","okmsg");const r=await fetch(publishConfig.endpointUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({adminKey:key(),events,commitMessage:"Update events from V15 admin",timestampUtc:new Date().toISOString()})});if(!r.ok)throw new Error("HTTP "+r.status);msg("Publicatie verzonden. Controleer GitHub Actions.","okmsg")}catch(e){msg("Publiceren mislukt: "+e.message,"errmsg")}}function copyJson(){navigator.clipboard.writeText(JSON.stringify(events,null,2))}title.addEventListener("input",()=>{if(!selectedId&&!eventId.value)eventId.value=slug(title.value);preview()});["description","date","location","statusField","allDay"].forEach(i=>$(i).addEventListener("input",()=>{toggleTime();preview()}));listSearch.addEventListener("input",renderList);statusFilter.addEventListener("change",renderList);adminKeyInput.value=sessionStorage.getItem("alsoAdminPublishKey")||"";loadEvents();
-</script></body></html>
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALSO Cloud Events Admin</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#111827}
+    header{background:#111827;color:white;padding:30px 24px}
+    .wrap,main{max-width:1280px;margin:0 auto}
+    main{padding:28px 24px}
+    .logo{height:54px;width:auto;margin-bottom:14px}
+    .panel{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:22px;margin-bottom:22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .grid{display:grid;grid-template-columns:360px 1fr;gap:22px}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .stat{background:#f8fbff;border:1px solid #dbeafe;border-radius:14px;padding:16px}
+    .stat strong{display:block;font-size:26px}
+    label{display:block;font-weight:bold;margin-top:12px}
+    label.req::after{content:" *";color:#b91c1c}
+    input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;margin-top:6px;font:inherit}
+    textarea{min-height:130px}
+    input.invalid,select.invalid,textarea.invalid{border-color:#b91c1c;background:#fef2f2}
+    button,.button{background:#111827;color:white;padding:11px 16px;border:0;border-radius:9px;font-weight:bold;margin-top:12px;cursor:pointer;text-decoration:none;display:inline-block}
+    .light{background:#eef2ff!important;color:#111827!important}.ok{background:#065f46!important}.danger{background:#b91c1c!important}.orange{background:#b45309!important}
+    .button-row{display:flex;flex-wrap:wrap;gap:10px}
+    .status{margin-top:12px;padding:12px;border-radius:10px;display:none}
+    .status.okmsg{display:block;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+    .status.errmsg{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+    .event-item{border:1px solid #e5e7eb;border-radius:12px;padding:11px;background:#fafafa;cursor:pointer;margin-bottom:8px}
+    .event-item.active{border-color:#2563eb;background:#eff6ff}
+    .event-item.archived{opacity:.55}
+    .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:12px;background:#eef2ff}
+    .warning{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:12px;margin-top:12px;display:none}
+    pre{white-space:pre-wrap;background:#111827;color:white;padding:18px;border-radius:12px;overflow:auto;max-height:360px}
+    @media(max-width:1050px){.grid,.split,.stats{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img class="logo" src="assets/also-logo.png" alt="ALSO logo">
+    <h1>ALSO Cloud Events Admin</h1>
+    <p>Beheer events, concepten, archief en publicatie.</p>
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Systeemstatus</h2>
+    <div id="systemStatus" class="status okmsg">Admin geladen. Events worden opgehaald...</div>
+  </section>
+
+  <section class="panel">
+    <h2>Publiceren</h2>
+    <label>Admin key<input id="adminKeyInput" type="password" placeholder="ALSO-Cloud-Events-2026-..."></label>
+    <div class="button-row">
+      <button onclick="saveAdminKey()">Key tijdelijk opslaan</button>
+      <button onclick="loadEvents()">Events laden</button>
+      <button class="light" onclick="newEvent()">Nieuw event</button>
+      <button class="ok" onclick="publishToGitHub()">Publiceer naar GitHub</button>
+      <a class="button light" href="index.html">Publieke pagina bekijken</a>
+    </div>
+    <div id="publishStatus" class="status"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Dashboard</h2>
+    <div class="stats">
+      <div class="stat"><strong id="statTotal">0</strong><span>Totaal</span></div>
+      <div class="stat"><strong id="statPublished">0</strong><span>Published</span></div>
+      <div class="stat"><strong id="statDraft">0</strong><span>Draft</span></div>
+      <div class="stat"><strong id="statArchived">0</strong><span>Archived</span></div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Events</h2>
+      <input id="listSearch" placeholder="Zoeken...">
+      <select id="statusFilter">
+        <option value="all">Alle statussen</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+        <option value="archived">Archived</option>
+      </select>
+      <div id="eventList"></div>
+    </section>
+
+    <section class="panel">
+      <h2 id="formTitle">Event aanmaken of wijzigen</h2>
+      <label>Template
+        <select id="templatePicker" onchange="applyTemplate()">
+          <option value="">Geen template</option>
+          <option value="webinar">Webinar</option>
+          <option value="workshop">Workshop</option>
+          <option value="solution-training">Solution Training</option>
+          <option value="partner-event">Partner Event</option>
+          <option value="cloud-summit">Cloud Summit</option>
+        </select>
+      </label>
+      <label class="req">Titel<input id="title" required></label>
+      <label class="req">Unieke ID<input id="eventId" required></label>
+      <label class="req">Status<select id="statusField" required><option value="published">Published</option><option value="draft">Draft</option><option value="archived">Archived</option></select></label>
+      <label class="req">Categorie<select id="category" required></select></label>
+      <label class="req">Featured?<select id="featured" required><option value="false">Nee</option><option value="true">Ja</option></select></label>
+      <label class="req">Hele dag?<select id="allDay" onchange="toggleTime()" required><option value="false">Nee</option><option value="true">Ja</option></select></label>
+      <label class="req">Datum<input id="date" type="date" required></label>
+      <div id="timeFields">
+        <label>Starttijd<input id="startTime" type="time" value="10:00"></label>
+        <label>Eindtijd<input id="endTime" type="time" value="11:00"></label>
+      </div>
+      <label class="req">Locatie<input id="location" required></label>
+      <label class="req">Registratie URL<input id="registration" required placeholder="https://..."></label>
+      <label>Banner URL<input id="bannerUrl" placeholder="https://..."></label>
+      <label class="req">Tags, gescheiden met komma's<input id="tags" required></label>
+      <label class="req">Beschrijving<textarea id="description" required maxlength="1500"></textarea></label>
+      <div id="warnings" class="warning"></div>
+      <div class="button-row">
+        <button onclick="saveEvent()">Event opslaan</button>
+        <button onclick="duplicateEvent()">Dupliceren</button>
+        <button class="orange" onclick="archiveEvent()">Archiveren</button>
+        <button class="danger" onclick="deleteEvent()">Verwijderen</button>
+        <button class="light" onclick="undoLast()">Ongedaan maken</button>
+        <button class="light" onclick="copyJson()">Kopieer JSON</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="split">
+    <section class="panel">
+      <h2>Live preview</h2>
+      <div id="preview"></div>
+    </section>
+    <section class="panel">
+      <h2>JSON preview</h2>
+      <pre id="output"></pre>
+    </section>
+  </div>
+</main>
+
+<script>
+let CONFIG = {};
+let EVENTS = [];
+let selectedId = null;
+let undoStack = [];
+
+const templates = {
+  webinar: { category:"webinar", featured:false, allDay:false, tags:["Webinar","Microsoft","Partner Enablement"], description:"Tijdens dit webinar nemen we partners mee in het onderwerp, de praktische toepassing en de commerciële kansen." },
+  workshop: { category:"workshop", featured:false, allDay:false, tags:["Workshop","Hands-on","Azure"], description:"In deze workshop gaan partners praktisch aan de slag met scenario's, demo's en concrete handvatten." },
+  "solution-training": { category:"solution-training", featured:false, allDay:false, tags:["Training","Solution","Microsoft"], description:"Deze solution training helpt partners om de oplossing beter te positioneren, verkopen en technisch te onderbouwen." },
+  "partner-event": { category:"partner-event", featured:false, allDay:false, tags:["Partner Event","ALSO","Cloud"], description:"Een partner event gericht op kennisdeling, inspiratie en praktische vervolgstappen voor ALSO Cloud partners." },
+  "cloud-summit": { category:"cloud-summit", featured:true, allDay:true, tags:["Cloud Summit","AI","Cybersecurity","Partner Awards"], description:"De ALSO Cloud Summit brengt partners samen rondom strategie, innovatie en concrete cloudkansen." }
+};
+
+function $(id){ return document.getElementById(id); }
+
+function slugify(value){
+  return (value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+}
+
+function eventDate(event){ return event.allDay ? event.date : String(event.start || "").slice(0,10); }
+function selected(){ return EVENTS.find(e => e.id === selectedId); }
+
+function statusMsg(message, type){
+  $("publishStatus").textContent = message;
+  $("publishStatus").className = "status " + type;
+}
+
+function saveAdminKey(){
+  sessionStorage.setItem("alsoAdminPublishKey", $("adminKeyInput").value.trim());
+  statusMsg("Admin key tijdelijk opgeslagen.", "okmsg");
+}
+
+function getAdminKey(){
+  return sessionStorage.getItem("alsoAdminPublishKey") || $("adminKeyInput").value.trim();
+}
+
+async function loadConfig(){
+  CONFIG = await fetch("../data/config.json?ts=" + Date.now()).then(r => r.json());
+  const categoryOptions = Object.entries(CONFIG.categories || {}).map(([key, value]) => `<option value="${key}">${value.label}</option>`).join("");
+  $("category").innerHTML = categoryOptions;
+}
+
+async function loadEvents(){
+  try {
+    EVENTS = await fetch("events-admin.json?ts=" + Date.now()).then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+    $("systemStatus").textContent = "events-admin.json geladen: " + EVENTS.length + " event(s).";
+    $("systemStatus").className = "status okmsg";
+    render();
+    if (EVENTS.length) selectEvent(EVENTS[0].id);
+  } catch (error) {
+    $("systemStatus").textContent = "Events laden mislukt: " + error.message;
+    $("systemStatus").className = "status errmsg";
+  }
+}
+
+function snapshot(){
+  undoStack.push(JSON.stringify(EVENTS));
+  if (undoStack.length > 20) undoStack.shift();
+}
+
+function undoLast(){
+  if (!undoStack.length) return alert("Geen actie om ongedaan te maken.");
+  EVENTS = JSON.parse(undoStack.pop());
+  selectedId = null;
+  render();
+  statusMsg("Laatste wijziging ongedaan gemaakt.", "okmsg");
+}
+
+function render(){
+  $("statTotal").textContent = EVENTS.length;
+  $("statPublished").textContent = EVENTS.filter(e => e.status === "published").length;
+  $("statDraft").textContent = EVENTS.filter(e => e.status === "draft").length;
+  $("statArchived").textContent = EVENTS.filter(e => e.status === "archived").length;
+  renderList();
+  $("output").textContent = JSON.stringify(EVENTS, null, 2);
+}
+
+function renderList(){
+  const q = ($("listSearch").value || "").toLowerCase();
+  const status = $("statusFilter").value;
+  const filtered = EVENTS.filter(e => (status === "all" || e.status === status) && (!q || JSON.stringify(e).toLowerCase().includes(q)));
+  $("eventList").innerHTML = filtered.map(e => `<div class="event-item ${e.id === selectedId ? "active" : ""} ${e.status}" onclick="selectEvent('${e.id}')">
+    <strong>${e.title}</strong> <span class="badge">${e.status}</span><br>
+    <small>${eventDate(e)} · ${CONFIG.categories?.[e.category]?.label || e.category}</small>
+  </div>`).join("") || "<p>Geen events gevonden.</p>";
+}
+
+function selectEvent(id){
+  selectedId = id;
+  const e = selected();
+  if (!e) return;
+  $("formTitle").textContent = "Event wijzigen";
+  $("title").value = e.title || "";
+  $("eventId").value = e.id || "";
+  $("statusField").value = e.status || "draft";
+  $("category").value = e.category || Object.keys(CONFIG.categories || {})[0] || "";
+  $("featured").value = String(!!e.featured);
+  $("allDay").value = String(!!e.allDay);
+  $("date").value = e.allDay ? (e.date || "") : String(e.start || "").slice(0,10);
+  $("startTime").value = e.allDay ? "10:00" : String((e.start || "T10:00").split("T")[1]).slice(0,5);
+  $("endTime").value = e.allDay ? "11:00" : String((e.end || "T11:00").split("T")[1]).slice(0,5);
+  $("location").value = e.location || "";
+  $("registration").value = e.registrationUrl || "";
+  $("bannerUrl").value = e.bannerUrl || "";
+  $("tags").value = (e.tags || []).join(", ");
+  $("description").value = e.description || "";
+  toggleTime();
+  detectConflicts();
+  previewEvent();
+  renderList();
+}
+
+function newEvent(){
+  selectedId = null;
+  $("formTitle").textContent = "Nieuw event";
+  ["title","eventId","date","location","registration","bannerUrl","tags","description"].forEach(id => $(id).value = "");
+  $("statusField").value = "draft";
+  $("featured").value = "false";
+  $("allDay").value = "false";
+  $("startTime").value = "10:00";
+  $("endTime").value = "11:00";
+  toggleTime();
+  previewEvent();
+}
+
+function toggleTime(){ $("timeFields").style.display = $("allDay").value === "true" ? "none" : "block"; }
+
+function validateForm(){
+  let valid = true;
+  ["title","eventId","statusField","category","featured","allDay","date","location","registration","tags","description"].forEach(id => {
+    const el = $(id);
+    const ok = (el.value || "").trim().length > 0;
+    el.classList.toggle("invalid", !ok);
+    if (!ok) valid = false;
+  });
+  if ($("registration").value.trim() && !/^https?:\/\//i.test($("registration").value.trim())) {
+    $("registration").classList.add("invalid");
+    statusMsg("Registratie URL moet beginnen met https:// of http://", "errmsg");
+    return false;
+  }
+  if (EVENTS.some(e => e.id === $("eventId").value.trim() && e.id !== selectedId)) {
+    $("eventId").classList.add("invalid");
+    statusMsg("Er bestaat al een event met deze unieke ID.", "errmsg");
+    return false;
+  }
+  if (!valid) statusMsg("Vul alle verplichte velden in.", "errmsg");
+  return valid;
+}
+
+function readForm(){
+  const event = {
+    id: $("eventId").value.trim(),
+    title: $("title").value.trim(),
+    status: $("statusField").value,
+    location: $("location").value.trim(),
+    category: $("category").value,
+    featured: $("featured").value === "true",
+    tags: $("tags").value.split(",").map(t => t.trim()).filter(Boolean),
+    registrationUrl: $("registration").value.trim(),
+    bannerUrl: $("bannerUrl").value.trim(),
+    description: $("description").value.trim()
+  };
+  if ($("allDay").value === "true") {
+    event.date = $("date").value;
+    event.allDay = true;
+  } else {
+    event.start = `${$("date").value}T${$("startTime").value || "10:00"}:00`;
+    event.end = `${$("date").value}T${$("endTime").value || "11:00"}:00`;
+    event.allDay = false;
+  }
+  return event;
+}
+
+function saveEvent(){
+  if (!validateForm()) return false;
+  snapshot();
+  const event = readForm();
+  const idx = EVENTS.findIndex(e => e.id === selectedId || e.id === event.id);
+  if (idx >= 0) EVENTS[idx] = event;
+  else EVENTS.push(event);
+  EVENTS.sort((a,b) => (eventDate(a) || "").localeCompare(eventDate(b) || ""));
+  selectedId = event.id;
+  render();
+  selectEvent(event.id);
+  statusMsg("Event lokaal opgeslagen. Klik op Publiceer naar GitHub om live te zetten.", "okmsg");
+  return true;
+}
+
+function duplicateEvent(){
+  if (!selectedId) return alert("Selecteer eerst een event.");
+  snapshot();
+  const base = selected();
+  const copy = {...base, id: base.id + "-copy", title: base.title + " kopie", status: "draft"};
+  EVENTS.push(copy);
+  selectedId = copy.id;
+  render();
+  selectEvent(copy.id);
+}
+
+function archiveEvent(){
+  if (!selectedId) return alert("Selecteer eerst een event.");
+  snapshot();
+  selected().status = "archived";
+  render();
+  selectEvent(selectedId);
+}
+
+function deleteEvent(){
+  if (!selectedId) return alert("Selecteer eerst een event.");
+  if (!confirm("Event definitief verwijderen?")) return;
+  snapshot();
+  EVENTS = EVENTS.filter(e => e.id !== selectedId);
+  selectedId = null;
+  newEvent();
+  render();
+}
+
+function applyTemplate(){
+  const template = templates[$("templatePicker").value];
+  if (!template) return;
+  $("category").value = template.category;
+  $("featured").value = String(!!template.featured);
+  $("allDay").value = String(!!template.allDay);
+  $("tags").value = template.tags.join(", ");
+  $("description").value = template.description;
+  $("statusField").value = "draft";
+  toggleTime();
+  previewEvent();
+}
+
+function detectConflicts(){
+  const d = $("date").value;
+  if (!d) {
+    $("warnings").style.display = "none";
+    return;
+  }
+  const same = EVENTS.filter(e => e.id !== selectedId && eventDate(e) === d && e.status !== "archived");
+  if (same.length) {
+    $("warnings").style.display = "block";
+    $("warnings").textContent = "Let op: er staan al " + same.length + " event(s) op deze datum: " + same.map(e => e.title).join(", ");
+  } else {
+    $("warnings").style.display = "none";
+  }
+}
+
+function previewEvent(){
+  $("preview").innerHTML = `<h3>${$("title").value || "Nieuw event"}</h3>
+  <p>${$("date").value || "Geen datum"} · ${$("location").value || "Geen locatie"} · ${$("statusField").value}</p>
+  <p>${($("description").value || "").replace(/\n/g, "<br>")}</p>`;
+}
+
+async function publishToGitHub(){
+  if (!saveEvent()) return;
+  if (!getAdminKey()) {
+    statusMsg("Vul eerst de admin key in.", "errmsg");
+    return;
+  }
+  if (!CONFIG.adminPublish?.endpointUrl) {
+    statusMsg("Publish endpoint ontbreekt in config.json.", "errmsg");
+    return;
+  }
+  if (!confirm("Publiceren naar GitHub?")) return;
+  statusMsg("Publiceren gestart...", "okmsg");
+  try {
+    const response = await fetch(CONFIG.adminPublish.endpointUrl, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        adminKey: getAdminKey(),
+        events: EVENTS,
+        commitMessage: "Update events from V15.1 admin",
+        timestampUtc: new Date().toISOString()
+      })
+    });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    statusMsg("Publicatie verzonden. Controleer GitHub Actions.", "okmsg");
+  } catch (error) {
+    statusMsg("Publiceren mislukt: " + error.message, "errmsg");
+  }
+}
+
+function copyJson(){ navigator.clipboard.writeText(JSON.stringify(EVENTS, null, 2)); }
+
+async function init(){
+  await loadConfig();
+  $("adminKeyInput").value = sessionStorage.getItem("alsoAdminPublishKey") || "";
+  $("title").addEventListener("input", () => {
+    if (!selectedId && !$("eventId").value) $("eventId").value = slugify($("title").value);
+    previewEvent();
+  });
+  ["description","date","location","statusField","allDay"].forEach(id => $(id).addEventListener("input", () => {
+    toggleTime();
+    detectConflicts();
+    previewEvent();
+  }));
+  $("listSearch").addEventListener("input", renderList);
+  $("statusFilter").addEventListener("change", renderList);
+  await loadEvents();
+}
+
+init();
+</script>
+</body>
+</html>

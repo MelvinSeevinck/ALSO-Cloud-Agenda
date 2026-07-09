@@ -1,1 +1,335 @@
-<!doctype html><html lang='nl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>ALSO Cloud Events</title><style>body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#111827}header{background:#111827;color:white;padding:40px 24px}.wrap,main{max-width:1120px;margin:0 auto}.logo{height:52px}.panel{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin:24px}.button,.small-button{display:inline-block;background:#111827;color:white;padding:10px 14px;border-radius:9px;text-decoration:none;font-weight:bold;border:0;cursor:pointer}.secondary{background:#374151}.light{background:#eef2ff;color:#111827}.event-card{display:grid;grid-template-columns:170px 1fr;gap:20px;border-top:1px solid #e5e7eb;padding:22px 0}.featured{border:1px solid #dbeafe;background:#f8fbff;border-radius:16px;padding:22px}.tags span{background:#eef2ff;border-radius:999px;padding:4px 8px;margin:3px;display:inline-block}code{background:#f3f4f6;padding:4px;border-radius:6px;word-break:break-all}input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px}.grid{display:grid;grid-template-columns:340px 1fr;gap:18px}.event-item{border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin:8px 0;cursor:pointer}.active{border-color:#2563eb;background:#eff6ff}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stats div{background:#f8fbff;border:1px solid #dbeafe;border-radius:12px;padding:14px}.invalid{border-color:#b91c1c!important;background:#fef2f2}.status{padding:12px;border-radius:10px;margin-top:10px}.okmsg{background:#ecfdf5}.errmsg{background:#fef2f2;color:#991b1b}pre{background:#111827;color:white;padding:14px;border-radius:12px;white-space:pre-wrap;max-height:360px;overflow:auto}@media(max-width:800px){.event-card,.grid,.stats{grid-template-columns:1fr}}</style></head><body><header><div class='wrap'><img src='assets/also-logo.svg' class='logo'><h1>ALSO Cloud Events</h1><p>De centrale evenementenkalender voor Cloud partners van ALSO Nederland B.V. met webinars, solution trainingen, workshops, partner enablement sessies en partner events.</p></div></header><main><section class='panel'><h2>Abonneer op de agenda</h2><p>Webcal-abonnementslink:</p><p><code>webcal://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics</code></p></section><section class='panel'><h2>Featured event</h2><article class='event-card featured'><div><b>30-09-2026</b></div><div><div>⭐ ALSO Cloud Summit</div><h3>⭐ ALSO Cloud Summit 2026</h3><p>Het Houtse Meer, Den Hout</p><div class='tags'><span>AI</span><span>Cybersecurity</span><span>Partner Awards</span><span>Cloud Summit</span></div><p>We zien je graag op 30 september bij de ALSO Cloud Summit 2026.<br><br>Tijdens de Cloud Summit worden de ALSO Partner Awards uitgereikt.<br><br>Daarnaast staan er twee keynotes op het programma:<br>- Cybersecurity<br>- AI<br><br>Ook zijn er vier breakout sessies:<br>- Road to Cloud<br>- Road to Compliance<br>- Road to Cybersecurity<br>- Road to Copilot &amp; AI<br><br>Meer informatie over het programma en aanmelden volgt binnenkort.</p><a class='small-button' href='webcal://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics'>Outlook abonnement</a> <a class='small-button secondary' href='webcal://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics'>Apple</a> <a class='small-button light' target='_blank' href='https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%E2%AD%90+ALSO+Cloud+Summit+2026&amp;dates=20260930%2F20261001&amp;details=We+zien+je+graag+op+30+september+bij+de+ALSO+Cloud+Summit+2026.%0A%0ATijdens+de+Cloud+Summit+worden+de+ALSO+Partner+Awards+uitgereikt.%0A%0ADaarnaast+staan+er+twee+keynotes+op+het+programma%3A%0A-+Cybersecurity%0A-+AI%0A%0AOok+zijn+er+vier+breakout+sessies%3A%0A-+Road+to+Cloud%0A-+Road+to+Compliance%0A-+Road+to+Cybersecurity%0A-+Road+to+Copilot+%26+AI%0A%0AMeer+informatie+over+het+programma+en+aanmelden+volgt+binnenkort.%0A%0AAanmelden+%2F+meer+informatie%3A+https%3A%2F%2Fwww.also.com%2F&amp;location=Het+Houtse+Meer%2C+Den+Hout'>Google</a> <a class='small-button' href='https://www.also.com/'>Aanmelden</a></div></article></section><section class='panel'><h2>Alle geplande events</h2><p>Geen overige events.</p></section></main></body></html>
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALSO Cloud Events</title>
+  <style>
+    :root{--bg:#f4f6fb;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--dark:#111827;--accent:#2563eb}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+    header{background:linear-gradient(135deg,#111827,#1f2937);color:white;padding:42px 24px}
+    .wrap,main{max-width:1120px;margin:0 auto}
+    main{padding:32px 24px 48px}
+    .logo{height:58px;width:auto;display:block;margin-bottom:28px}
+    h1{font-size:42px;margin:8px 0 12px}
+    .eyebrow{color:#bfdbfe;font-weight:bold;letter-spacing:.04em;text-transform:uppercase;font-size:13px}
+    header p{max-width:850px;font-size:18px}
+    .panel{background:white;border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .button-row{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0}
+    .button,.small-button{display:inline-block;background:#111827;color:white;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:bold;border:0;cursor:pointer;font:inherit}
+    .small-button{padding:9px 13px;margin:4px 6px 4px 0}
+    .secondary{background:#374151!important}.light{background:#eef2ff!important;color:#111827!important}.disabled{opacity:.45;cursor:not-allowed}
+    code{background:#f3f4f6;padding:3px 6px;border-radius:6px;word-break:break-all}
+    .hint,.location{color:var(--muted)}
+    .identity-box{background:#f8fbff;border:1px solid #dbeafe;border-radius:14px;padding:16px;margin-top:16px}
+    .identity-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .identity-grid label{font-weight:bold;font-size:13px}
+    .identity-grid input,.search{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin-top:6px;font:inherit}
+    #identityStatus{display:none;color:#065f46;font-weight:bold}
+    .filter{border:1px solid var(--border);background:white;padding:10px 12px;border-radius:999px;cursor:pointer}
+    .filter.active{background:#111827;color:white}
+    .event-card{display:grid;grid-template-columns:170px 1fr;gap:24px;border-top:1px solid var(--border);padding:24px 0}
+    .event-card:first-child{border-top:none}
+    .event-card.featured{border:1px solid #dbeafe;background:#f8fbff;border-radius:16px;padding:22px}
+    .event-banner{width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-bottom:14px}
+    .event-date{font-weight:bold}.event-category{color:var(--accent);font-weight:bold}.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .tags span{background:#eef2ff;border-radius:999px;padding:4px 8px;font-size:12px}
+    @media(max-width:720px){h1{font-size:32px}.event-card,.identity-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img class="logo" src="assets/also-logo.png" alt="ALSO logo">
+    <div class="eyebrow">ALSO Nederland B.V.</div>
+    <h1 id="pageTitle">ALSO Cloud Events</h1>
+    <p id="pageDescription">De centrale evenementenkalender voor Cloud partners van ALSO Nederland B.V.</p>
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Abonneer op de agenda</h2>
+    <p>Vul je gegevens in. Daarna kun je de agenda toevoegen aan Outlook, Apple Calendar of Google Calendar.</p>
+
+    <div class="identity-box">
+      <h3>Gegevens voor gebruiksregistratie</h3>
+      <p class="hint">Deze gegevens zijn verplicht zodat we kunnen zien welke partners de agenda gebruiken.</p>
+      <div class="identity-grid">
+        <label>Naam<input id="userName" required placeholder="Voor- en achternaam"></label>
+        <label>Organisatie<input id="organization" required placeholder="Partnerorganisatie"></label>
+        <label>E-mailadres<input id="email" required type="email" placeholder="naam@organisatie.nl"></label>
+      </div>
+      <div class="button-row">
+        <button class="button" onclick="saveIdentity()">Gegevens opslaan</button>
+        <button class="button light" onclick="clearIdentity()">Gegevens wissen</button>
+      </div>
+      <div id="identityStatus">Gegevens opgeslagen. Je kunt de agenda nu toevoegen.</div>
+    </div>
+
+    <div class="button-row">
+      <a id="outlookSubscribe" class="button tracked-link requires-identity" href="#" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="none" data-event-title="none">Outlook Desktop abonnement</a>
+      <a id="appleSubscribe" class="button secondary tracked-link requires-identity" href="#" data-action="subscribe_click" data-calendar-type="apple" data-event-id="none" data-event-title="none">Apple Calendar</a>
+      <a id="googleSubscribe" class="button light tracked-link requires-identity" href="#" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="none" data-event-title="none">Google Calendar</a>
+    </div>
+
+    <p class="hint">De Outlook-knop gebruikt direct de <strong>webcal://</strong>-abonnementslink. Als Outlook alsnog een foutmelding geeft, kopieer dan onderstaande webcal-link en plak die in Outlook Desktop via Agenda toevoegen → Van internet/Abonneren via web.</p>
+    <p id="privacyNotice" class="hint"></p>
+    <p>Webcal-abonnementslink:</p>
+    <p><code id="webcalCode"></code></p>
+  </section>
+
+  <section class="panel">
+    <h2>Featured event</h2>
+    <div id="featuredEvents"><p>Events laden...</p></div>
+  </section>
+
+  <section class="panel">
+    <h2>Alle geplande events</h2>
+    <input id="search" class="search" type="search" placeholder="Zoek op titel, onderwerp of tag...">
+    <div id="filters" class="button-row"></div>
+    <div id="events"></div>
+  </section>
+</main>
+
+<script>
+let CONFIG = {};
+let EVENTS = [];
+let activeFilter = "all";
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]));
+}
+
+function getCalendarUrls() {
+  const siteUrl = (CONFIG.calendar?.siteUrl || location.href.replace(/\/[^/]*$/, "/")).replace(/\/$/, "/");
+  const icsUrl = siteUrl + "calendar.ics";
+  const webcalUrl = icsUrl.replace(/^https?:\/\//, "webcal://");
+  const googleUrl = "https://calendar.google.com/calendar/render?cid=" + encodeURIComponent(webcalUrl);
+  return { icsUrl, webcalUrl, googleUrl };
+}
+
+function formatDate(event) {
+  if (event.allDay) {
+    const [y,m,d] = event.date.split("-");
+    return `${d}-${m}-${y}`;
+  }
+  const start = new Date(event.start);
+  const end = new Date(event.end);
+  return `${start.toLocaleDateString("nl-NL")} ${start.toLocaleTimeString("nl-NL", {hour:"2-digit", minute:"2-digit"})} - ${end.toLocaleTimeString("nl-NL", {hour:"2-digit", minute:"2-digit"})}`;
+}
+
+function categoryLabel(key) {
+  return CONFIG.categories?.[key]?.label || key || "";
+}
+
+function eventCard(event) {
+  const { webcalUrl } = getCalendarUrls();
+  const tags = (event.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("");
+  const banner = event.bannerUrl ? `<img class="event-banner" src="${escapeHtml(event.bannerUrl)}" alt="">` : "";
+  const registration = event.registrationUrl ? `<a class="small-button tracked-link requires-identity" href="${escapeHtml(event.registrationUrl)}" data-action="registration_click" data-calendar-type="registration" data-event-id="${escapeHtml(event.id)}" data-event-title="${escapeHtml(event.title)}">Aanmelden</a>` : "";
+  const search = `${event.title || ""} ${event.description || ""} ${(event.tags || []).join(" ")}`.toLowerCase();
+
+  return `<article class="event-card ${event.featured ? "featured" : ""}" data-category="${escapeHtml(event.category)}" data-search="${escapeHtml(search)}">
+    <div class="event-date">${escapeHtml(formatDate(event))}</div>
+    <div class="event-content">
+      ${banner}
+      <div class="event-category">${escapeHtml(categoryLabel(event.category))}</div>
+      <h3>${escapeHtml(event.title)}</h3>
+      <p class="location">${escapeHtml(event.location)}</p>
+      <div class="tags">${tags}</div>
+      <p>${escapeHtml(event.description).replace(/\n/g, "<br>")}</p>
+      <div class="event-actions">
+        <a class="small-button tracked-link requires-identity" href="${escapeHtml(webcalUrl)}" data-action="event_calendar_click" data-calendar-type="outlook" data-event-id="${escapeHtml(event.id)}" data-event-title="${escapeHtml(event.title)}">Outlook abonnement</a>
+        <a class="small-button secondary tracked-link requires-identity" href="${escapeHtml(webcalUrl)}" data-action="event_calendar_click" data-calendar-type="apple" data-event-id="${escapeHtml(event.id)}" data-event-title="${escapeHtml(event.title)}">Apple</a>
+        <a class="small-button light tracked-link requires-identity" href="${escapeHtml(googleEventLink(event))}" target="_blank" rel="noopener" data-action="event_calendar_click" data-calendar-type="google" data-event-id="${escapeHtml(event.id)}" data-event-title="${escapeHtml(event.title)}">Google</a>
+        ${registration}
+      </div>
+    </div>
+  </article>`;
+}
+
+function googleEventLink(event) {
+  let dates;
+  if (event.allDay) {
+    const start = new Date(event.date + "T00:00:00");
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+    dates = start.toISOString().slice(0,10).replace(/-/g,"") + "/" + end.toISOString().slice(0,10).replace(/-/g,"");
+  } else {
+    const start = event.start.replace(/[-:]/g,"").replace(".000","").replace(/\+.*$/,"");
+    const end = event.end.replace(/[-:]/g,"").replace(".000","").replace(/\+.*$/,"");
+    dates = start + "/" + end;
+  }
+  const params = new URLSearchParams({ action:"TEMPLATE", text:event.title, dates, details:event.description + "\n\nAanmelden / meer informatie: " + event.registrationUrl, location:event.location });
+  return "https://calendar.google.com/calendar/render?" + params.toString();
+}
+
+function renderEvents() {
+  const today = new Date().toISOString().slice(0,10);
+  let visible = EVENTS.filter(e => CONFIG.settings?.showPastEvents || (e.allDay ? e.date >= today : e.start.slice(0,10) >= today));
+  visible.sort((a,b) => (a.allDay ? a.date : a.start).localeCompare(b.allDay ? b.date : b.start));
+
+  let featured = visible.filter(e => e.featured);
+  let normal = visible.filter(e => !e.featured);
+  if (!featured.length && visible.length) {
+    featured = [visible[0]];
+    normal = visible.slice(1);
+  }
+
+  document.getElementById("featuredEvents").innerHTML = featured.map(eventCard).join("") || "<p>Er staat momenteel geen featured event gepland.</p>";
+  document.getElementById("events").innerHTML = normal.map(eventCard).join("") || "<p>Er staan momenteel geen overige events gepland.</p>";
+
+  const filters = [`<button class="filter active" data-filter="all">Alle events</button>`].concat(
+    Object.entries(CONFIG.categories || {}).map(([key, value]) => `<button class="filter" data-filter="${escapeHtml(key)}">${escapeHtml(value.label)}</button>`)
+  ).join("");
+  document.getElementById("filters").innerHTML = filters;
+
+  document.querySelectorAll(".filter").forEach(btn => btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter = btn.dataset.filter;
+    applyFilters();
+    track({ action:"filter_click", calendarType:activeFilter, eventId:"none", eventTitle:"none" });
+  }));
+
+  document.querySelectorAll(".tracked-link").forEach(link => link.addEventListener("click", event => {
+    if (link.classList.contains("requires-identity") && !ensureIdentity()) {
+      event.preventDefault();
+      return;
+    }
+    track({ action:link.dataset.action, calendarType:link.dataset.calendarType, eventId:link.dataset.eventId, eventTitle:link.dataset.eventTitle });
+  }));
+
+  updateButtons();
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = (document.getElementById("search").value || "").toLowerCase();
+  document.querySelectorAll(".event-card").forEach(card => {
+    const ok = (activeFilter === "all" || card.dataset.category === activeFilter) && (!q || card.dataset.search.includes(q));
+    card.style.display = ok ? "" : "none";
+  });
+}
+
+function storageKey(){ return "alsoCloudEventsUser"; }
+function getIdentity(){ try { return JSON.parse(localStorage.getItem(storageKey()) || "{}"); } catch { return {}; } }
+function setIdentity(identity){ localStorage.setItem(storageKey(), JSON.stringify(identity)); }
+function hasValidIdentity(){ const i = getIdentity(); return !!(i.userName && i.organization && i.email); }
+
+function loadIdentity(){
+  const i = getIdentity();
+  userName.value = i.userName || "";
+  organization.value = i.organization || "";
+  email.value = i.email || "";
+  identityStatus.style.display = hasValidIdentity() ? "block" : "none";
+  updateButtons();
+}
+
+function saveIdentity(){
+  const identity = { userName:userName.value.trim(), organization:organization.value.trim(), email:email.value.trim() };
+  if (!identity.userName || !identity.organization || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email)) {
+    alert("Vul naam, organisatie en een geldig e-mailadres in.");
+    return false;
+  }
+  setIdentity(identity);
+  identityStatus.style.display = "block";
+  updateButtons();
+  track({ action:"identity_saved", calendarType:"identity", eventId:"none", eventTitle:"none" });
+  return true;
+}
+
+function clearIdentity(){
+  localStorage.removeItem(storageKey());
+  loadIdentity();
+}
+
+function ensureIdentity(){
+  if (hasValidIdentity()) return true;
+  alert("Vul eerst je naam, organisatie en e-mailadres in en klik op Gegevens opslaan.");
+  userName.focus();
+  return false;
+}
+
+function updateButtons(){
+  const ok = hasValidIdentity();
+  document.querySelectorAll(".requires-identity").forEach(button => {
+    button.classList.toggle("disabled", !ok);
+    button.setAttribute("aria-disabled", ok ? "false" : "true");
+    button.title = ok ? "" : "Vul eerst je gegevens in.";
+  });
+}
+
+function sessionId(){
+  const key = "alsoCloudEventsSessionId";
+  let value = sessionStorage.getItem(key);
+  if (!value) {
+    value = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+    sessionStorage.setItem(key, value);
+  }
+  return value;
+}
+
+function norm(value, fallback="unknown"){
+  value = String(value || "").trim();
+  return value || fallback;
+}
+
+function track(payload){
+  const cfg = CONFIG.tracking || {};
+  if (!cfg.enabled || !cfg.endpointUrl) return;
+  const identity = getIdentity();
+  const query = new URLSearchParams(location.search);
+  const body = {
+    timestampUtc: new Date().toISOString(),
+    source: cfg.source || "ALSO Cloud Events",
+    action: norm(payload.action),
+    calendarType: norm(payload.calendarType, "none"),
+    eventId: norm(payload.eventId, "none"),
+    eventTitle: norm(payload.eventTitle, "none"),
+    partnerCode: norm(query.get("partner") || query.get("partnerCode"), "direct"),
+    campaign: norm(query.get("campaign") || query.get("utm_campaign"), "direct"),
+    pageUrl: location.href,
+    referrer: norm(document.referrer, "direct"),
+    userAgent: norm(navigator.userAgent),
+    language: norm(navigator.language),
+    sessionId: sessionId(),
+    userName: norm(identity.userName, "anonymous"),
+    organization: norm(identity.organization, "unknown"),
+    email: norm(identity.email, "unknown")
+  };
+
+  try {
+    const blob = new Blob([JSON.stringify(body)], { type:"application/json" });
+    if (navigator.sendBeacon) navigator.sendBeacon(cfg.endpointUrl, blob);
+    else fetch(cfg.endpointUrl, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(body), keepalive:true }).catch(()=>{});
+  } catch {}
+}
+
+async function init(){
+  CONFIG = await fetch("data/config.json?ts=" + Date.now()).then(r => r.json()).catch(async () => await fetch("../data/config.json?ts=" + Date.now()).then(r => r.json()));
+  EVENTS = await fetch("events.json?ts=" + Date.now()).then(r => r.json());
+
+  document.getElementById("pageTitle").textContent = CONFIG.calendar.name;
+  document.getElementById("pageDescription").textContent = CONFIG.calendar.description;
+  document.getElementById("privacyNotice").textContent = CONFIG.tracking.privacyNotice || "";
+
+  const urls = getCalendarUrls();
+  outlookSubscribe.href = urls.webcalUrl;
+  appleSubscribe.href = urls.webcalUrl;
+  googleSubscribe.href = urls.googleUrl;
+  webcalCode.textContent = urls.webcalUrl;
+
+  loadIdentity();
+  renderEvents();
+  document.getElementById("search").addEventListener("input", applyFilters);
+  ["userName","organization","email"].forEach(id => document.getElementById(id).addEventListener("input", updateButtons));
+  track({ action:"page_view", calendarType:"none", eventId:"none", eventTitle:"none" });
+}
+
+init();
+</script>
+</body>
+</html>
