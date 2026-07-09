@@ -2,7 +2,7 @@
 <html lang="nl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin - ALSO Cloud Events</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#1f2937;line-height:1.5}header{background:#111827;color:white;padding:32px 24px}main,.wrap{max-width:1100px;margin:0 auto}main{padding:32px 24px}.logo{height:50px;width:auto;margin-bottom:18px}.grid{display:grid;grid-template-columns:320px 1fr;gap:24px}.panel{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:24px}label{display:block;font-weight:bold;margin-top:14px}input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;margin-top:6px;font:inherit}textarea{min-height:120px}button,.button{background:#111827;color:white;padding:12px 18px;border:0;border-radius:8px;font-weight:bold;margin-top:16px;cursor:pointer;text-decoration:none;display:inline-block}button.secondary,.button.secondary{background:#374151}button.light,.button.light{background:#eef2ff;color:#111827}button.danger{background:#b91c1c}pre{white-space:pre-wrap;background:#111827;color:white;padding:18px;border-radius:12px;overflow:auto}code{background:#f3f4f6;padding:3px 6px;border-radius:6px}.hint{color:#6b7280}.event-list{display:flex;flex-direction:column;gap:8px}.event-item{border:1px solid #e5e7eb;border-radius:10px;padding:10px;background:#fafafa;cursor:pointer}.event-item.active{border-color:#2563eb;background:#eff6ff}.event-item strong{display:block}.event-item span{font-size:13px;color:#6b7280}.button-row{display:flex;flex-wrap:wrap;gap:10px}@media(max-width:850px){.grid{grid-template-columns:1fr}}
+body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#1f2937;line-height:1.5}header{background:#111827;color:white;padding:32px 24px}main,.wrap{max-width:1100px;margin:0 auto}main{padding:32px 24px}.logo{height:50px;width:auto;margin-bottom:18px}.grid{display:grid;grid-template-columns:320px 1fr;gap:24px}.panel{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:24px}label{display:block;font-weight:bold;margin-top:14px}input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;margin-top:6px;font:inherit}textarea{min-height:120px}button,.button{background:#111827;color:white;padding:12px 18px;border:0;border-radius:8px;font-weight:bold;margin-top:16px;cursor:pointer;text-decoration:none;display:inline-block}button.secondary,.button.secondary{background:#374151}button.light,.button.light{background:#eef2ff;color:#111827}button.danger{background:#b91c1c}pre{white-space:pre-wrap;background:#111827;color:white;padding:18px;border-radius:12px;overflow:auto}code{background:#f3f4f6;padding:3px 6px;border-radius:6px}.hint{color:#6b7280}.event-list{display:flex;flex-direction:column;gap:8px}.event-item{border:1px solid #e5e7eb;border-radius:10px;padding:10px;background:#fafafa;cursor:pointer}.event-item.active{border-color:#2563eb;background:#eff6ff}.event-item strong{display:block}.event-item span{font-size:13px;color:#6b7280}.button-row{display:flex;flex-wrap:wrap;gap:10px}.status{margin-top:12px;padding:12px;border-radius:10px;display:none}.status.ok{display:block;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}.status.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}@media(max-width:850px){.grid{grid-template-columns:1fr}}
 </style></head>
 <body>
 <header><div class="wrap"><img class="logo" src="assets/also-logo.png" alt="ALSO logo"><h1>ALSO Cloud Events Admin</h1><p>Interne beheerpagina voor ALSO-medewerkers. Deel deze pagina niet met partners.</p></div></header>
@@ -10,7 +10,7 @@ body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#1f2937;line
 <section class="panel">
   <h2>Beheer events</h2>
   <p class="hint">Laad bestaande events uit <code>events.json</code>, wijzig of verwijder ze en genereer daarna YAML voor <code>events.yml</code>.</p>
-  <div class="button-row"><button onclick="loadEvents()">Events laden</button><button class="light" onclick="newEvent()">Nieuw event</button><a class="button light" href="index.html">Publieke pagina bekijken</a></div>
+  <div class="button-row"><button onclick="loadEvents()">Events laden</button><button class="light" onclick="newEvent()">Nieuw event</button><button class="secondary" onclick="publishToGitHub()">Publiceer naar GitHub</button><a class="button light" href="index.html">Publieke pagina bekijken</a></div><div id="publishStatus" class="status"></div>
 </section>
 <div class="grid">
 <section class="panel"><h2>Events</h2><div id="eventList" class="event-list"><p class="hint">Klik op “Events laden”.</p></div></section>
@@ -34,6 +34,7 @@ body{font-family:Arial,sans-serif;margin:0;background:#f4f6fb;color:#1f2937;line
 </main>
 <script>
 const categories = {"webinar": {"label": "🟦 Webinar"}, "solution-training": {"label": "🟩 Solution Training"}, "workshop": {"label": "🟨 Workshop"}, "partner-event": {"label": "🟪 Partner Event"}, "cloud-summit": {"label": "⭐ ALSO Cloud Summit"}, "microsoft-event": {"label": "🔴 Microsoft Event"}};
+const publishConfig = {"enabled": true, "endpointUrl": "", "adminKey": "", "repository": "MelvinSeevinck/ALSO-Cloud-Agenda", "branch": "main", "filePath": "events.yml"};
 let events = [];
 let selectedId = null;
 function slugify(text){return text.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}
@@ -110,6 +111,38 @@ ${String(e.description||'Meer informatie volgt binnenkort.').split('\n').map(lin
   return y;
 }
 function generateYaml(update=true){ if(update && selectedId) saveEvent(); document.getElementById('output').textContent=`events:\n${events.map(yamlEvent).join('\n')}`; }
+function currentEventsYaml(){return `events:
+${events.map(yamlEvent).join('
+')}`;}
+function setPublishStatus(message, type){const el=document.getElementById('publishStatus'); el.textContent=message; el.className='status '+type;}
+async function publishToGitHub(){
+  if(selectedId) saveEvent();
+  const yaml=currentEventsYaml();
+  document.getElementById('output').textContent=yaml;
+  if(!publishConfig.enabled || !publishConfig.endpointUrl){setPublishStatus('Publicatie is nog niet ingesteld. Vul admin_publish.endpoint_url in events.yml.', 'error'); return;}
+  if(!publishConfig.adminKey){setPublishStatus('Admin key ontbreekt. Vul admin_publish.admin_key in events.yml en controleer dezelfde key in Power Automate.', 'error'); return;}
+  if(!confirm('Weet je zeker dat je deze events naar GitHub wilt publiceren?')) return;
+  setPublishStatus('Publiceren naar GitHub gestart...', 'ok');
+  try {
+    const response = await fetch(publishConfig.endpointUrl, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        adminKey: publishConfig.adminKey,
+        repository: publishConfig.repository,
+        branch: publishConfig.branch,
+        filePath: publishConfig.filePath,
+        eventsYaml: yaml,
+        commitMessage: 'Update events from admin portal',
+        timestampUtc: new Date().toISOString()
+      })
+    });
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    setPublishStatus('Publicatie verzonden. Controleer GitHub Actions; de agenda wordt opnieuw opgebouwd.', 'ok');
+  } catch(e) {
+    setPublishStatus('Publiceren mislukt: '+e.message, 'error');
+  }
+}
 function copyYaml(){navigator.clipboard.writeText(document.getElementById('output').textContent)}
 toggleTimeFields();
 </script></body></html>
