@@ -1,11 +1,19 @@
-# ALSO Cloud Events - V15 Clean Full Replace
+# ALSO Cloud Events - V15.1 Restored Tracking & Logo
 
-Volledige schone versie.
+Volledige herstelversie.
 
-## Belangrijk
+## Teruggezet
 
-- `data/events-source.json` is de enige bron.
+- Publieke pagina vraagt verplicht om naam, organisatie en e-mailadres.
+- Abonneren en eventknoppen zijn geblokkeerd totdat de gegevens zijn opgeslagen.
+- Tracking stuurt userName, organization en email mee naar de bestaande Power Automate tracking-flow.
+- ALSO-logo staat op publieke en adminpagina.
+- Power Automate URL's blijven intact in `data/config.json`.
+- `tracking-schema.json` is verwijderd.
+
+## Structuur
+
+- `data/events-source.json` is de bron.
 - `docs/events-admin.json` bevat alle events voor admin.
-- `docs/events.json` en `docs/calendar.ics` bevatten alleen `published` events.
-- Power Automate URL's staan intact in `data/config.json`.
-- GitHub-token staat niet in deze repository en blijft in Power Automate.
+- `docs/events.json` bevat alleen published events.
+- `docs/calendar.ics` bevat alleen published events.
