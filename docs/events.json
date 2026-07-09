@@ -33,5 +33,20 @@
     "start": "2026-10-28T10:00:00",
     "end": "2026-10-28T16:00:00",
     "allDay": false
+  },
+  {
+    "id": "test",
+    "title": "test",
+    "location": "Het Houtse Meer, Den Hout",
+    "category": "partner-event",
+    "featured": false,
+    "tags": [
+      "test"
+    ],
+    "registrationUrl": "test",
+    "bannerUrl": "",
+    "description": "st",
+    "date": "2026-10-29",
+    "allDay": true
   }
 ]
