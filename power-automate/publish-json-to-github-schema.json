@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "adminKey": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "filePath": {
+      "type": "string"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "commitMessage": {
+      "type": "string"
+    },
+    "timestampUtc": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "adminKey",
+    "repository",
+    "branch",
+    "filePath",
+    "events"
+  ]
+}
