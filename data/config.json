@@ -8,7 +8,7 @@
   },
   "tracking": {
     "enabled": true,
-    "endpointUrl": "",
+    "endpointUrl": "https://default....powerplatform.com/.../triggers/manual/paths/invoke?...",
     "source": "ALSO Cloud Events",
     "privacyNotice": "We meten gebruiksstatistieken om onze partnercommunicatie te verbeteren. Naam, organisatie en e-mailadres worden gebruikt om inzicht te krijgen in het gebruik per partner."
   },
