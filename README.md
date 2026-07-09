@@ -120,3 +120,9 @@ De kalenderknoppen worden visueel gedimd totdat de gegevens zijn opgeslagen.
 De adminpagina ondersteunt nu bestaande events laden, wijzigen, verwijderen en nieuwe events toevoegen. De pagina genereert daarna YAML voor de `events:`-sectie in `events.yml`.
 
 GitHub Pages blijft statisch: de adminpagina schrijft niet automatisch terug naar GitHub. Kopieer de gegenereerde YAML naar `events.yml` en commit de wijziging.
+
+## V10 wijziging
+
+De adminpagina heeft nu een knop **Publiceer naar GitHub**. Daarmee wordt via Power Automate automatisch `events.yml` bijgewerkt.
+
+Zie `power-automate/V10-publish-to-github-setup.md`.

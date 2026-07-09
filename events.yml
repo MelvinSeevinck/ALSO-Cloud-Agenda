@@ -18,6 +18,14 @@ tracking:
   source: "ALSO Cloud Events"
   privacy_notice: "We meten alleen klikstatistieken om het gebruik van de agenda te verbeteren. Er worden via deze website geen IP-adressen opgeslagen."
 
+admin_publish:
+  enabled: true
+  endpoint_url: ""
+  admin_key: ""
+  repository: "MelvinSeevinck/ALSO-Cloud-Agenda"
+  branch: "main"
+  file_path: "events.yml"
+
 settings:
   show_past_events: false
 
