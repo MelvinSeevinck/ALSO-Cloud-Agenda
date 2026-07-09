@@ -31,3 +31,8 @@ Adminpagina:
 ```
 
 De adminpagina beheert events als JSON en kan publiceren via Power Automate naar GitHub.
+
+
+## V12 CMS
+
+V12 maakt van de adminpagina een CMS-achtige beheeromgeving. De admin key staat niet meer publiek in config.json.
