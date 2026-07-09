@@ -15,5 +15,23 @@
     ],
     "registrationUrl": "",
     "description": "We zien je graag op 30 september bij de ALSO Cloud Summit 2026.\n\nTijdens de Cloud Summit worden de ALSO Partner Awards uitgereikt.\n\nDaarnaast staan er twee keynotes op het programma:\n- Cybersecurity\n- AI\n\nOok zijn er vier breakout sessies:\n- Road to Cloud\n- Road to Compliance\n- Road to Cybersecurity\n- Road to Copilot & AI\n\nMeer informatie over het programma en aanmelden volgt binnenkort."
+  },
+  {
+    "id": "Azure Dev",
+    "title": "Azure Devop event",
+    "location": "Het Houtse Meer, Den Hout",
+    "category": "solution-training",
+    "featured": false,
+    "tags": [
+      "Azure",
+      "Azure devops",
+      "training"
+    ],
+    "registrationUrl": "",
+    "bannerUrl": "",
+    "description": "Azure Devops training door Remco",
+    "start": "2026-10-28T10:00:00",
+    "end": "2026-10-28T16:00:00",
+    "allDay": false
   }
 ]
