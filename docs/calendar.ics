@@ -5,15 +5,12 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:ALSO Cloud Agenda
 NAME:ALSO Cloud Agenda
-X-WR-CALDESC:De centrale evenementenkalender voor Cloud partners van ALS
- O Nederland B.V. met webinars\, solution trainingen\, workshops\, partn
- er enablement sessies en partner events.
 X-WR-TIMEZONE:Europe/Amsterdam
 REFRESH-INTERVAL;VALUE=DURATION:PT12H
 X-PUBLISHED-TTL:PT12H
 BEGIN:VEVENT
 UID:also-cloud-summit-2026@also-cloud-agenda
-DTSTAMP:20260709T145846Z
+DTSTAMP:20260709T150320Z
 SUMMARY:⭐ ALSO Cloud Summit 2026
 LOCATION:Het Houtse Meer\, Den Hout
 DESCRIPTION:We zien je graag op 30 september bij de ALSO Cloud Summit 20
@@ -21,8 +18,10 @@ DESCRIPTION:We zien je graag op 30 september bij de ALSO Cloud Summit 20
  .\n\nDaarnaast staan er twee keynotes op het programma:\n- Cybersecurit
  y\n- AI\n\nOok zijn er vier breakout sessies:\n- Road to Cloud\n- Road 
  to Compliance\n- Road to Cybersecurity\n- Road to Copilot & AI\n\nMeer 
- informatie over het programma en aanmelden volgt binnenkort.
+ informatie over het programma en aanmelden volgt binnenkort.\n\nAanmeld
+ en / meer informatie: https://www.also.com/
 CATEGORIES:⭐ ALSO Cloud Summit
+URL:https://www.also.com/
 DTSTART;VALUE=DATE:20260930
 DTEND;VALUE=DATE:20261001
 END:VEVENT
