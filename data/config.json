@@ -21,12 +21,26 @@
     "filePath": "data/events-source.json"
   },
   "categories": {
-    "webinar": { "label": "🟦 Webinar" },
-    "solution-training": { "label": "🟩 Solution Training" },
-    "workshop": { "label": "🟨 Workshop" },
-    "partner-event": { "label": "🟪 Partner Event" },
-    "cloud-summit": { "label": "⭐ ALSO Cloud Summit" },
-    "microsoft-event": { "label": "🔴 Microsoft Event" }
+    "webinar": {
+      "label": "🟦 Webinar"
+    },
+    "solution-training": {
+      "label": "🟩 Solution Training"
+    },
+    "workshop": {
+      "label": "🟨 Workshop"
+    },
+    "partner-event": {
+      "label": "🟪 Partner Event"
+    },
+    "cloud-summit": {
+      "label": "⭐ ALSO Cloud Summit"
+    },
+    "microsoft-event": {
+      "label": "🔴 Microsoft Event"
+    }
   },
-  "settings": { "showPastEvents": false }
+  "settings": {
+    "showPastEvents": false
+  }
 }
