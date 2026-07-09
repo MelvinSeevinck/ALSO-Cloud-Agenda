@@ -1,0 +1,46 @@
+{
+  "calendar": {
+    "name": "ALSO Cloud Events",
+    "agendaName": "ALSO Cloud Agenda",
+    "description": "De centrale evenementenkalender voor Cloud partners van ALSO Nederland B.V. met webinars, solution trainingen, workshops, partner enablement sessies en partner events.",
+    "timezone": "Europe/Amsterdam",
+    "siteUrl": "https://melvinseevinck.github.io/ALSO-Cloud-Agenda/"
+  },
+  "tracking": {
+    "enabled": true,
+    "endpointUrl": "",
+    "source": "ALSO Cloud Events",
+    "privacyNotice": "We meten gebruiksstatistieken om onze partnercommunicatie te verbeteren. Naam, organisatie en e-mailadres worden gebruikt om inzicht te krijgen in het gebruik per partner."
+  },
+  "adminPublish": {
+    "enabled": true,
+    "endpointUrl": "",
+    "adminKey": "",
+    "repository": "MelvinSeevinck/ALSO-Cloud-Agenda",
+    "branch": "main",
+    "filePath": "data/events-source.json"
+  },
+  "categories": {
+    "webinar": {
+      "label": "🟦 Webinar"
+    },
+    "solution-training": {
+      "label": "🟩 Solution Training"
+    },
+    "workshop": {
+      "label": "🟨 Workshop"
+    },
+    "partner-event": {
+      "label": "🟪 Partner Event"
+    },
+    "cloud-summit": {
+      "label": "⭐ ALSO Cloud Summit"
+    },
+    "microsoft-event": {
+      "label": "🔴 Microsoft Event"
+    }
+  },
+  "settings": {
+    "showPastEvents": false
+  }
+}
