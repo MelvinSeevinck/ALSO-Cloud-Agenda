@@ -13,13 +13,13 @@
     "privacyNotice": "We meten gebruiksstatistieken om onze partnercommunicatie te verbeteren. Naam, organisatie en e-mailadres worden gebruikt om inzicht te krijgen in het gebruik per partner."
   },
   "adminPublish": {
-  "enabled": true,
-  "endpointUrl": "https://default95924808304441779c1b713746ffab.95.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4325ffde425047dd94d1db6cd4362879/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TFfLGBWAxDmA9rSGMoPnEHHjdXcreusPslXZi2I1AKY",
-  "adminKey": "ALSO-Cloud-Events-2026-iets-unieks",
-  "repository": "MelvinSeevinck/ALSO-Cloud-Agenda",
-  "branch": "main",
-  "filePath": "data/events-source.json"
-},
+    "enabled": true,
+    "endpointUrl": "https://default95924808304441779c1b713746ffab.95.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4325ffde425047dd94d1db6cd4362879/triggers/manual/paths/invoke?api-version=1",
+    "adminKey": "",
+    "repository": "MelvinSeevinck/ALSO-Cloud-Agenda",
+    "branch": "main",
+    "filePath": "data/events-source.json"
+  },
   "categories": {
     "webinar": {
       "label": "🟦 Webinar"
