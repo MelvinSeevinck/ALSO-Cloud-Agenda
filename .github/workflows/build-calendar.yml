@@ -25,4 +25,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update generated calendar files"
-          file_pattern: docs/calendar.ics docs/index.html docs/admin.html docs/events.json docs/assets/also-logo.png
+          file_pattern: docs/calendar.ics docs/index.html docs/admin.html docs/events.json docs/events-admin.json docs/assets/also-logo.png
