@@ -17,3 +17,10 @@
 - Opslag als losse bestanden in `docs/assets/banners/`
 - Geen Base64 meer in eventdata
 - Automatische resize en bestandsnaam
+
+
+## V16.2 Pilot Final
+- Outlook Web abonnementsroute toegevoegd
+- Outlook Desktop handleiding met screenshot toegevoegd
+- Kalenderlinks en instructies afgeschermd tot na registratie
+- Kopieertracking voor Outlook Desktop toegevoegd

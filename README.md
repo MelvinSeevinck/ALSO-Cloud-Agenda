@@ -96,3 +96,11 @@ Categorie-dropdown hersteld en automatische unieke IDs toegevoegd.
 - Geen Base64 meer in eventdata
 - Automatische verkleining naar maximaal 1600 × 900
 - Automatische unieke bestandsnaam op basis van eventtitel
+
+
+### V16.2 Pilot Final
+- Outlook Web-knop opent de pagina Agenda toevoegen en kopieert de HTTPS-agenda-URL
+- Outlook Desktop krijgt een aparte kopieerknop en visuele handleiding
+- Alle abonnementsknoppen, links en instructies zijn pas zichtbaar na gebruikersregistratie
+- Screenshot van Outlook toegevoegd onder `docs/assets/outlook-desktop-subscribe-guide.png`
+- Bestaande tracking-, bannerupload- en Power Automate-integratie behouden
