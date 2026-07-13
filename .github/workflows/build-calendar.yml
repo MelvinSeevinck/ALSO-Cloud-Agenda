@@ -3,21 +3,45 @@ name: Build Calendar
 on:
   push:
     branches: [ main ]
+    paths:
+      - "data/**"
+      - "generate_calendar.py"
+      - "docs/index.html"
+      - "docs/admin.html"
+      - ".github/workflows/build-calendar.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: build-calendar-main
+  cancel-in-progress: false
+
 jobs:
   build-calendar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Generate calendar
+
+      - name: Validate and generate calendar
         run: python generate_calendar.py
+
+      - name: Validate generated subscription
+        run: |
+          test -s docs/calendar.ics
+          grep -q "BEGIN:VCALENDAR" docs/calendar.ics
+          grep -q "END:VCALENDAR" docs/calendar.ics
+          test -s docs/events.json
+          test -s docs/events-admin.json
+          test -s docs/config.json
+
       - name: Commit generated files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
