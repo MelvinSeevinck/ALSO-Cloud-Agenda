@@ -1,5 +1,24 @@
 [
   {
+    "id": "test123",
+    "title": "test123",
+    "status": "published",
+    "location": "test",
+    "category": "webinar",
+    "featured": true,
+    "tags": [
+      "Webinar",
+      "Microsoft",
+      "Partner Enablement"
+    ],
+    "registrationUrl": "http://www.test.nl",
+    "bannerUrl": "test",
+    "description": "Tijdens dit webinar nemen we partners mee in het onderwerp, de praktische toepassing en de commerciële kansen.",
+    "start": "2026-07-14T10:00:00",
+    "end": "2026-07-14T11:00:00",
+    "allDay": false
+  },
+  {
     "id": "also-cloud-summit-2026",
     "title": "⭐ ALSO Cloud Summit 2026",
     "status": "published",
