@@ -10,3 +10,10 @@
 - Filters verplaatst
 - ICS-validatie in GitHub Actions toegevoegd
 - README en versiehistorie uitgebreid
+
+
+## V16.1 Final Banner Upload
+- Banner upload via Power Automate
+- Opslag als losse bestanden in `docs/assets/banners/`
+- Geen Base64 meer in eventdata
+- Automatische resize en bestandsnaam

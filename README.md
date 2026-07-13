@@ -88,3 +88,11 @@ Categorie-dropdown hersteld en automatische unieke IDs toegevoegd.
 - Filters boven Featured event
 - Workflowcontrole om agenda-abonnement stabiel te houden
 - Volledige README en versiehistorie
+
+
+### V16.1 Final Banner Upload
+- Banner upload via Power Automate en GitHub API
+- Afbeeldingen als losse bestanden in `docs/assets/banners/`
+- Geen Base64 meer in eventdata
+- Automatische verkleining naar maximaal 1600 × 900
+- Automatische unieke bestandsnaam op basis van eventtitel
