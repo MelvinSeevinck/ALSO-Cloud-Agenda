@@ -309,7 +309,7 @@ function track(payload){
 }
 
 async function init(){
-  CONFIG = await fetch("data/config.json?ts=" + Date.now()).then(r => r.json()).catch(async () => await fetch("../data/config.json?ts=" + Date.now()).then(r => r.json()));
+  CONFIG = await fetch("config.json?ts=" + Date.now()).then(r => { if (!r.ok) throw new Error("config.json HTTP " + r.status); return r.json(); });
   EVENTS = await fetch("events.json?ts=" + Date.now()).then(r => r.json());
 
   document.getElementById("pageTitle").textContent = CONFIG.calendar.name;

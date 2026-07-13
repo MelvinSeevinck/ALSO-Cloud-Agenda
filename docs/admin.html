@@ -25,7 +25,7 @@
     button,.button{background:#111827;color:white;padding:11px 16px;border:0;border-radius:9px;font-weight:bold;margin-top:12px;cursor:pointer;text-decoration:none;display:inline-block}
     .light{background:#eef2ff!important;color:#111827!important}.ok{background:#065f46!important}.danger{background:#b91c1c!important}.orange{background:#b45309!important}
     .button-row{display:flex;flex-wrap:wrap;gap:10px}
-    .status{margin-top:12px;padding:12px;border-radius:10px;display:none}
+    .hint{color:#6b7280;font-size:14px}.status{margin-top:12px;padding:12px;border-radius:10px;display:none}
     .status.okmsg{display:block;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
     .status.errmsg{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
     .event-item{border:1px solid #e5e7eb;border-radius:12px;padding:11px;background:#fafafa;cursor:pointer;margin-bottom:8px}
@@ -101,7 +101,7 @@
         </select>
       </label>
       <label class="req">Titel<input id="title" required></label>
-      <label class="req">Unieke ID<input id="eventId" required></label>
+      <label class="req">Unieke ID<input id="eventId" required readonly></label><div class="button-row"><button type="button" class="light" onclick="regenerateId()">Genereer ID opnieuw</button></div><p class="hint">Automatisch op basis van de titel. Bij dubbele IDs wordt -2, -3 enzovoort toegevoegd.</p>
       <label class="req">Status<select id="statusField" required><option value="published">Published</option><option value="draft">Draft</option><option value="archived">Archived</option></select></label>
       <label class="req">Categorie<select id="category" required></select></label>
       <label class="req">Featured?<select id="featured" required><option value="false">Nee</option><option value="true">Ja</option></select></label>
@@ -160,6 +160,21 @@ function slugify(value){
   return (value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
 }
 
+function generateUniqueId(titleValue){
+  const base = slugify(titleValue) || "event";
+  let candidate = base;
+  let number = 2;
+  while (EVENTS.some(event => event.id === candidate && event.id !== selectedId)) {
+    candidate = base + "-" + number;
+    number++;
+  }
+  return candidate;
+}
+
+function regenerateId(){
+  $("eventId").value = generateUniqueId($("title").value);
+}
+
 function eventDate(event){ return event.allDay ? event.date : String(event.start || "").slice(0,10); }
 function selected(){ return EVENTS.find(e => e.id === selectedId); }
 
@@ -178,7 +193,7 @@ function getAdminKey(){
 }
 
 async function loadConfig(){
-  CONFIG = await fetch("../data/config.json?ts=" + Date.now()).then(r => r.json());
+  CONFIG = await fetch("config.json?ts=" + Date.now()).then(r => { if (!r.ok) throw new Error("config.json HTTP " + r.status); return r.json(); });
   const categoryOptions = Object.entries(CONFIG.categories || {}).map(([key, value]) => `<option value="${key}">${value.label}</option>`).join("");
   $("category").innerHTML = categoryOptions;
 }
@@ -431,7 +446,7 @@ async function init(){
   await loadConfig();
   $("adminKeyInput").value = sessionStorage.getItem("alsoAdminPublishKey") || "";
   $("title").addEventListener("input", () => {
-    if (!selectedId && !$("eventId").value) $("eventId").value = slugify($("title").value);
+    if (!selectedId) $("eventId").value = generateUniqueId($("title").value);
     previewEvent();
   });
   ["description","date","location","statusField","allDay"].forEach(id => $(id).addEventListener("input", () => {
