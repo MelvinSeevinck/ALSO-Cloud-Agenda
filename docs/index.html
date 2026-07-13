@@ -76,8 +76,13 @@
 
     <p class="hint">De Outlook-knop gebruikt direct de <strong>webcal://</strong>-abonnementslink. Als Outlook alsnog een foutmelding geeft, kopieer dan onderstaande webcal-link en plak die in Outlook Desktop via Agenda toevoegen → Van internet/Abonneren via web.</p>
     <p id="privacyNotice" class="hint"></p>
-    <p>Webcal-abonnementslink:</p>
-    <p><code id="webcalCode"></code></p>
+    <div id="webcalSection" style="display:none"><p>Webcal-abonnementslink:</p><p><code id="webcalCode"></code></p></div>
+  </section>
+
+  <section class="panel">
+    <h2>Events zoeken en filteren</h2>
+    <input id="search" class="search" type="search" placeholder="Zoek op titel, onderwerp of tag...">
+    <div id="filters" class="button-row"></div>
   </section>
 
   <section class="panel">
@@ -87,8 +92,6 @@
 
   <section class="panel">
     <h2>Alle geplande events</h2>
-    <input id="search" class="search" type="search" placeholder="Zoek op titel, onderwerp of tag...">
-    <div id="filters" class="button-row"></div>
     <div id="events"></div>
   </section>
 </main>
@@ -127,7 +130,8 @@ function categoryLabel(key) {
 function eventCard(event) {
   const { webcalUrl } = getCalendarUrls();
   const tags = (event.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("");
-  const banner = event.bannerUrl ? `<img class="event-banner" src="${escapeHtml(event.bannerUrl)}" alt="">` : "";
+  const bannerSource = event.bannerDataUrl || event.bannerUrl || "";
+  const banner = bannerSource ? `<img class="event-banner" src="${bannerSource}" alt="">` : "";
   const registration = event.registrationUrl ? `<a class="small-button tracked-link requires-identity" href="${escapeHtml(event.registrationUrl)}" data-action="registration_click" data-calendar-type="registration" data-event-id="${escapeHtml(event.id)}" data-event-title="${escapeHtml(event.title)}">Aanmelden</a>` : "";
   const search = `${event.title || ""} ${event.description || ""} ${(event.tags || []).join(" ")}`.toLowerCase();
 
@@ -260,6 +264,8 @@ function updateButtons(){
     button.setAttribute("aria-disabled", ok ? "false" : "true");
     button.title = ok ? "" : "Vul eerst je gegevens in.";
   });
+  document.getElementById("webcalSection").style.display = ok ? "block" : "none";
+  document.querySelectorAll(".requires-identity").forEach(button => {});
 }
 
 function sessionId(){
@@ -318,6 +324,7 @@ async function init(){
 
   const urls = getCalendarUrls();
   outlookSubscribe.href = urls.webcalUrl;
+  outlookSubscribe.addEventListener("click", () => { try { navigator.clipboard.writeText(urls.webcalUrl); } catch {} });
   appleSubscribe.href = urls.webcalUrl;
   googleSubscribe.href = urls.googleUrl;
   webcalCode.textContent = urls.webcalUrl;

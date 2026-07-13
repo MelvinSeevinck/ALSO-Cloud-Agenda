@@ -35,7 +35,14 @@
     .warning{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:12px;margin-top:12px;display:none}
     pre{white-space:pre-wrap;background:#111827;color:white;padding:18px;border-radius:12px;overflow:auto;max-height:360px}
     @media(max-width:1050px){.grid,.split,.stats{grid-template-columns:1fr}}
-  </style>
+  
+    .info{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#e5e7eb;color:#374151;font-size:12px;font-weight:bold;cursor:help;margin-left:6px}
+    .admin-gate{max-width:520px;margin:70px auto}
+    .hidden{display:none!important}
+    .banner-drop{border:2px dashed #cbd5e1;border-radius:12px;padding:18px;text-align:center;background:#f8fafc;margin-top:8px;cursor:pointer}
+    .banner-drop.drag{border-color:#2563eb;background:#eff6ff}
+    .banner-preview{width:100%;max-height:260px;object-fit:cover;border-radius:12px;margin-top:12px;display:none}
+    </style>
 </head>
 <body>
 <header>
@@ -47,6 +54,16 @@
 </header>
 
 <main>
+<section id="adminGate" class="panel admin-gate">
+  <h2>Admin openen</h2>
+  <p>Vul eerst de admin key in. De beheeromgeving wordt pas daarna weergegeven.</p>
+  <label>Admin key<input id="gateAdminKey" type="password" autocomplete="current-password"></label>
+  <div class="button-row">
+    <button onclick="unlockAdmin()">Admin openen</button>
+  </div>
+  <div id="gateStatus" class="status"></div>
+</section>
+<div id="adminContent" class="hidden">
   <section class="panel">
     <h2>Systeemstatus</h2>
     <div id="systemStatus" class="status okmsg">Admin geladen. Events worden opgehaald...</div>
@@ -54,7 +71,7 @@
 
   <section class="panel">
     <h2>Publiceren</h2>
-    <label>Admin key<input id="adminKeyInput" type="password" placeholder="ALSO-Cloud-Events-2026-..."></label>
+    <input id="adminKeyInput" type="hidden"><p class="hint">Admin key is voor deze browsersessie opgeslagen.</p>
     <div class="button-row">
       <button onclick="saveAdminKey()">Key tijdelijk opslaan</button>
       <button onclick="loadEvents()">Events laden</button>
@@ -97,14 +114,14 @@
           <option value="workshop">Workshop</option>
           <option value="solution-training">Solution Training</option>
           <option value="partner-event">Partner Event</option>
-          <option value="cloud-summit">Cloud Summit</option>
+          <option value="cloud-summit">Cloud Summit</option><option value="also-monthly-webinar">ALSO Monthly Webinar</option><option value="overige">Overige</option>
         </select>
       </label>
       <label class="req">Titel<input id="title" required></label>
       <label class="req">Unieke ID<input id="eventId" required readonly></label><div class="button-row"><button type="button" class="light" onclick="regenerateId()">Genereer ID opnieuw</button></div><p class="hint">Automatisch op basis van de titel. Bij dubbele IDs wordt -2, -3 enzovoort toegevoegd.</p>
-      <label class="req">Status<select id="statusField" required><option value="published">Published</option><option value="draft">Draft</option><option value="archived">Archived</option></select></label>
+      <label class="req">Status <span class="info" title="Draft: alleen zichtbaar in admin. Published: zichtbaar op publieke pagina en in de agenda. Archived: bewaard in admin, niet publiek.">i</span><select id="statusField" required><option value="published">Published</option><option value="draft">Draft</option><option value="archived">Archived</option></select></label>
       <label class="req">Categorie<select id="category" required></select></label>
-      <label class="req">Featured?<select id="featured" required><option value="false">Nee</option><option value="true">Ja</option></select></label>
+      <label class="req">Featured? <span class="info" title="Ja: event wordt bovenaan de publieke pagina uitgelicht. Nee: event staat tussen de gewone events.">i</span><select id="featured" required><option value="false">Nee</option><option value="true">Ja</option></select></label>
       <label class="req">Hele dag?<select id="allDay" onchange="toggleTime()" required><option value="false">Nee</option><option value="true">Ja</option></select></label>
       <label class="req">Datum<input id="date" type="date" required></label>
       <div id="timeFields">
@@ -113,7 +130,13 @@
       </div>
       <label class="req">Locatie<input id="location" required></label>
       <label class="req">Registratie URL<input id="registration" required placeholder="https://..."></label>
-      <label>Banner URL<input id="bannerUrl" placeholder="https://..."></label>
+      <label>Banner</label>
+<div id="bannerDrop" class="banner-drop">
+  Klik hier of sleep een JPG, PNG of WebP naar dit vak
+  <input id="bannerFile" type="file" accept="image/jpeg,image/png,image/webp" class="hidden">
+</div>
+<img id="bannerPreview" class="banner-preview" alt="Banner preview">
+<input id="bannerUrl" type="hidden">
       <label class="req">Tags, gescheiden met komma's<input id="tags" required></label>
       <label class="req">Beschrijving<textarea id="description" required maxlength="1500"></textarea></label>
       <div id="warnings" class="warning"></div>
@@ -138,7 +161,7 @@
       <pre id="output"></pre>
     </section>
   </div>
-</main>
+</div></main>
 
 <script>
 let CONFIG = {};
@@ -151,7 +174,9 @@ const templates = {
   workshop: { category:"workshop", featured:false, allDay:false, tags:["Workshop","Hands-on","Azure"], description:"In deze workshop gaan partners praktisch aan de slag met scenario's, demo's en concrete handvatten." },
   "solution-training": { category:"solution-training", featured:false, allDay:false, tags:["Training","Solution","Microsoft"], description:"Deze solution training helpt partners om de oplossing beter te positioneren, verkopen en technisch te onderbouwen." },
   "partner-event": { category:"partner-event", featured:false, allDay:false, tags:["Partner Event","ALSO","Cloud"], description:"Een partner event gericht op kennisdeling, inspiratie en praktische vervolgstappen voor ALSO Cloud partners." },
-  "cloud-summit": { category:"cloud-summit", featured:true, allDay:true, tags:["Cloud Summit","AI","Cybersecurity","Partner Awards"], description:"De ALSO Cloud Summit brengt partners samen rondom strategie, innovatie en concrete cloudkansen." }
+  "cloud-summit": { category:"cloud-summit", featured:true, allDay:true, tags:["Cloud Summit","AI","Cybersecurity","Partner Awards"], description:"De ALSO Cloud Summit brengt partners samen rondom strategie, innovatie en concrete cloudkansen." },
+  "also-monthly-webinar": { category:"also-monthly-webinar", featured:false, allDay:false, tags:["ALSO Monthly Webinar","Microsoft","Partner Enablement"], description:"Tijdens het ALSO Monthly Webinar bespreken we actuele ontwikkelingen, partnerkansen en praktische vervolgstappen." },
+  "overige": { category:"overige", featured:false, allDay:false, tags:["Overige","ALSO"], description:"Meer informatie over dit event volgt." }
 };
 
 function $(id){ return document.getElementById(id); }
@@ -262,7 +287,8 @@ function selectEvent(id){
   $("endTime").value = e.allDay ? "11:00" : String((e.end || "T11:00").split("T")[1]).slice(0,5);
   $("location").value = e.location || "";
   $("registration").value = e.registrationUrl || "";
-  $("bannerUrl").value = e.bannerUrl || "";
+  $("bannerUrl").value = e.bannerDataUrl || e.bannerUrl || "";
+  updateBannerPreview();
   $("tags").value = (e.tags || []).join(", ");
   $("description").value = e.description || "";
   toggleTime();
@@ -318,7 +344,8 @@ function readForm(){
     featured: $("featured").value === "true",
     tags: $("tags").value.split(",").map(t => t.trim()).filter(Boolean),
     registrationUrl: $("registration").value.trim(),
-    bannerUrl: $("bannerUrl").value.trim(),
+    bannerUrl: "",
+    bannerDataUrl: $("bannerUrl").value.trim(),
     description: $("description").value.trim()
   };
   if ($("allDay").value === "true") {
@@ -405,9 +432,91 @@ function detectConflicts(){
 }
 
 function previewEvent(){
-  $("preview").innerHTML = `<h3>${$("title").value || "Nieuw event"}</h3>
+  $("preview").innerHTML = `${$("bannerUrl").value ? `<img src="${$("bannerUrl").value}" style="width:100%;max-height:260px;object-fit:cover;border-radius:12px;margin-bottom:12px">` : ""}<h3>${$("title").value || "Nieuw event"}</h3>
   <p>${$("date").value || "Geen datum"} · ${$("location").value || "Geen locatie"} · ${$("statusField").value}</p>
   <p>${($("description").value || "").replace(/\n/g, "<br>")}</p>`;
+}
+
+
+function updateBannerPreview(){
+  const value = $("bannerUrl").value || "";
+  if (value) {
+    $("bannerPreview").src = value;
+    $("bannerPreview").style.display = "block";
+  } else {
+    $("bannerPreview").removeAttribute("src");
+    $("bannerPreview").style.display = "none";
+  }
+}
+
+function processBannerFile(file){
+  if (!file) return;
+  const allowed = ["image/jpeg","image/png","image/webp"];
+  if (!allowed.includes(file.type)) {
+    statusMsg("Gebruik een JPG, PNG of WebP afbeelding.", "errmsg");
+    return;
+  }
+  if (file.size > 8 * 1024 * 1024) {
+    statusMsg("De afbeelding is groter dan 8 MB.", "errmsg");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = event => {
+    const image = new Image();
+    image.onload = () => {
+      const maxWidth = 1600;
+      const maxHeight = 900;
+      let width = image.width;
+      let height = image.height;
+      const scale = Math.min(maxWidth / width, maxHeight / height, 1);
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(image, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+      $("bannerUrl").value = dataUrl;
+      updateBannerPreview();
+      previewEvent();
+      statusMsg("Banner verwerkt en geoptimaliseerd.", "okmsg");
+    };
+    image.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function setupBannerUpload(){
+  $("bannerDrop").addEventListener("click", () => $("bannerFile").click());
+  $("bannerFile").addEventListener("change", event => processBannerFile(event.target.files[0]));
+  $("bannerDrop").addEventListener("dragover", event => {
+    event.preventDefault();
+    $("bannerDrop").classList.add("drag");
+  });
+  $("bannerDrop").addEventListener("dragleave", () => $("bannerDrop").classList.remove("drag"));
+  $("bannerDrop").addEventListener("drop", event => {
+    event.preventDefault();
+    $("bannerDrop").classList.remove("drag");
+    processBannerFile(event.dataTransfer.files[0]);
+  });
+}
+
+function unlockAdmin(){
+  const value = $("gateAdminKey").value.trim();
+  if (!value) {
+    $("gateStatus").textContent = "Vul de admin key in.";
+    $("gateStatus").className = "status errmsg";
+    return;
+  }
+  sessionStorage.setItem("alsoAdminPublishKey", value);
+  $("adminKeyInput").value = value;
+  $("adminGate").classList.add("hidden");
+  $("adminContent").classList.remove("hidden");
+  loadEvents();
 }
 
 async function publishToGitHub(){
@@ -456,7 +565,10 @@ async function init(){
   }));
   $("listSearch").addEventListener("input", renderList);
   $("statusFilter").addEventListener("change", renderList);
-  await loadEvents();
+  setupBannerUpload();
+  if (sessionStorage.getItem("alsoAdminPublishKey")) {
+    $("gateAdminKey").value = sessionStorage.getItem("alsoAdminPublishKey");
+  }
 }
 
 init();
