@@ -35,7 +35,18 @@
     .event-banner{width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-bottom:14px}
     .event-date{font-weight:bold}.event-category{color:var(--accent);font-weight:bold}.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
     .tags span{background:#eef2ff;border-radius:999px;padding:4px 8px;font-size:12px}
-    @media(max-width:720px){h1{font-size:32px}.event-card,.identity-grid{grid-template-columns:1fr}}
+    
+    .subscription-options{display:none;margin-top:18px}
+    .subscription-guide{border-top:1px solid var(--border);margin-top:22px;padding-top:20px}
+    .guide-grid{display:grid;grid-template-columns:1fr 1.35fr;gap:24px;align-items:start}
+    .guide-grid ol{padding-left:22px}
+    .guide-grid li{margin-bottom:10px}
+    .guide-image{width:100%;border:1px solid var(--border);border-radius:12px;box-shadow:0 3px 14px rgba(0,0,0,.08)}
+    .copy-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .copy-row code{flex:1;min-width:280px}
+    .notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:12px;border-radius:10px}
+    @media(max-width:720px){h1{font-size:32px}.event-card,.identity-grid,.guide-grid{grid-template-columns:1fr}.copy-row code{min-width:100%}}
+
   </style>
 </head>
 <body>
@@ -68,15 +79,41 @@
       <div id="identityStatus">Gegevens opgeslagen. Je kunt de agenda nu toevoegen.</div>
     </div>
 
-    <div class="button-row">
-      <a id="outlookSubscribe" class="button tracked-link requires-identity" href="#" data-action="subscribe_click" data-calendar-type="outlook" data-event-id="none" data-event-title="none">Outlook Desktop abonnement</a>
-      <a id="appleSubscribe" class="button secondary tracked-link requires-identity" href="#" data-action="subscribe_click" data-calendar-type="apple" data-event-id="none" data-event-title="none">Apple Calendar</a>
-      <a id="googleSubscribe" class="button light tracked-link requires-identity" href="#" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="none" data-event-title="none">Google Calendar</a>
-    </div>
-
-    <p class="hint">De Outlook-knop gebruikt direct de <strong>webcal://</strong>-abonnementslink. Als Outlook alsnog een foutmelding geeft, kopieer dan onderstaande webcal-link en plak die in Outlook Desktop via Agenda toevoegen → Van internet/Abonneren via web.</p>
     <p id="privacyNotice" class="hint"></p>
-    <div id="webcalSection" style="display:none"><p>Webcal-abonnementslink:</p><p><code id="webcalCode"></code></p></div>
+
+    <div id="subscriptionOptions" class="subscription-options">
+      <h3>Kies je agenda</h3>
+      <div class="button-row">
+        <a id="outlookWebSubscribe" class="button tracked-link requires-identity" href="https://outlook.office.com/calendar/addcalendar" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="outlook-web" data-event-id="none" data-event-title="none">Outlook Web openen &amp; link kopiëren</a>
+        <button id="desktopCopyButton" class="button secondary requires-identity" type="button" onclick="copyDesktopCalendarLink()">Outlook Desktop: kopieer link</button>
+        <a id="appleSubscribe" class="button secondary tracked-link requires-identity" href="#" data-action="subscribe_click" data-calendar-type="apple" data-event-id="none" data-event-title="none">Apple Calendar</a>
+        <a id="googleSubscribe" class="button light tracked-link requires-identity" href="#" target="_blank" rel="noopener" data-action="subscribe_click" data-calendar-type="google" data-event-id="none" data-event-title="none">Google Calendar</a>
+      </div>
+
+      <div id="copyStatus" class="hint" aria-live="polite"></div>
+
+      <div class="subscription-guide">
+        <h3>Outlook Desktop: handmatig abonneren</h3>
+        <p class="notice">Outlook Desktop kan vanuit een website niet betrouwbaar automatisch naar het juiste invoerveld springen. De knop hierboven kopieert daarom de webcal-link. Plak die vervolgens bij <strong>Abonneren via web</strong>.</p>
+        <div class="guide-grid">
+          <div>
+            <ol>
+              <li>Open Outlook en ga naar <strong>Agenda</strong>.</li>
+              <li>Kies <strong>Agenda toevoegen</strong>.</li>
+              <li>Kies links <strong>Abonneren via web</strong>.</li>
+              <li>Plak de gekopieerde link in het bovenste veld.</li>
+              <li>Geef de agenda de naam <strong>ALSO Cloud Agenda</strong>.</li>
+              <li>Kies eventueel een kleur en klik op <strong>Importeren</strong>.</li>
+            </ol>
+            <div class="copy-row">
+              <code id="webcalCode"></code>
+              <button class="button light" type="button" onclick="copyDesktopCalendarLink()">Kopieer opnieuw</button>
+            </div>
+          </div>
+          <img class="guide-image" src="assets/outlook-desktop-subscribe-guide.png" alt="Voorbeeld van Abonneren via web in Outlook met de webcal-link en agendanaam ingevuld">
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="panel">
@@ -110,7 +147,8 @@ function getCalendarUrls() {
   const icsUrl = siteUrl + "calendar.ics";
   const webcalUrl = icsUrl.replace(/^https?:\/\//, "webcal://");
   const googleUrl = "https://calendar.google.com/calendar/render?cid=" + encodeURIComponent(webcalUrl);
-  return { icsUrl, webcalUrl, googleUrl };
+  const outlookWebUrl = "https://outlook.office.com/calendar/addcalendar";
+  return { icsUrl, webcalUrl, googleUrl, outlookWebUrl };
 }
 
 function formatDate(event) {
@@ -264,8 +302,19 @@ function updateButtons(){
     button.setAttribute("aria-disabled", ok ? "false" : "true");
     button.title = ok ? "" : "Vul eerst je gegevens in.";
   });
-  document.getElementById("webcalSection").style.display = ok ? "block" : "none";
-  document.querySelectorAll(".requires-identity").forEach(button => {});
+  document.getElementById("subscriptionOptions").style.display = ok ? "block" : "none";
+}
+
+async function copyDesktopCalendarLink(){
+  if (!ensureIdentity()) return;
+  const urls = getCalendarUrls();
+  try {
+    await navigator.clipboard.writeText(urls.webcalUrl);
+    document.getElementById("copyStatus").textContent = "De webcal-link is gekopieerd. Open Outlook Desktop en plak hem bij Abonneren via web.";
+    track({ action:"calendar_link_copy", calendarType:"outlook-desktop", eventId:"none", eventTitle:"none" });
+  } catch (error) {
+    document.getElementById("copyStatus").textContent = "Automatisch kopiëren is geblokkeerd. Selecteer de link hieronder en kopieer hem handmatig.";
+  }
 }
 
 function sessionId(){
@@ -323,8 +372,11 @@ async function init(){
   document.getElementById("privacyNotice").textContent = CONFIG.tracking.privacyNotice || "";
 
   const urls = getCalendarUrls();
-  outlookSubscribe.href = urls.webcalUrl;
-  outlookSubscribe.addEventListener("click", () => { try { navigator.clipboard.writeText(urls.webcalUrl); } catch {} });
+  outlookWebSubscribe.href = urls.outlookWebUrl;
+  outlookWebSubscribe.addEventListener("click", () => {
+    try { navigator.clipboard.writeText(urls.icsUrl); } catch {}
+    document.getElementById("copyStatus").textContent = "De HTTPS-agendalijn is gekopieerd. Kies in Outlook Web: Agenda toevoegen → Abonneren via web en plak de link.";
+  });
   appleSubscribe.href = urls.webcalUrl;
   googleSubscribe.href = urls.googleUrl;
   webcalCode.textContent = urls.webcalUrl;
