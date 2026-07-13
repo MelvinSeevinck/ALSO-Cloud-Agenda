@@ -38,6 +38,12 @@
     },
     "microsoft-event": {
       "label": "🔴 Microsoft Event"
+    },
+    "also-monthly-webinar": {
+      "label": "📅 ALSO Monthly Webinar"
+    },
+    "overige": {
+      "label": "⚪ Overige"
     }
   },
   "settings": {
