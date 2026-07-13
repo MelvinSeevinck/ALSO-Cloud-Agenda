@@ -124,11 +124,12 @@ def main():
     public_events = [event for event in all_events if event.get("status") == "published"]
 
     DOCS.mkdir(exist_ok=True)
+    (DOCS / "config.json").write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     (DOCS / "events-admin.json").write_text(json.dumps(all_events, ensure_ascii=False, indent=2), encoding="utf-8")
     (DOCS / "events.json").write_text(json.dumps(public_events, ensure_ascii=False, indent=2), encoding="utf-8")
     (DOCS / "calendar.ics").write_text(build_ics(config, public_events), encoding="utf-8")
 
-    print("Generated events-admin.json, events.json and calendar.ics")
+    print("Generated config.json, events-admin.json, events.json and calendar.ics")
 
 if __name__ == "__main__":
     main()
