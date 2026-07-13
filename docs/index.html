@@ -130,7 +130,7 @@ function categoryLabel(key) {
 function eventCard(event) {
   const { webcalUrl } = getCalendarUrls();
   const tags = (event.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("");
-  const bannerSource = event.bannerDataUrl || event.bannerUrl || "";
+  const bannerSource = event.bannerUrl || "";
   const banner = bannerSource ? `<img class="event-banner" src="${bannerSource}" alt="">` : "";
   const registration = event.registrationUrl ? `<a class="small-button tracked-link requires-identity" href="${escapeHtml(event.registrationUrl)}" data-action="registration_click" data-calendar-type="registration" data-event-id="${escapeHtml(event.id)}" data-event-title="${escapeHtml(event.title)}">Aanmelden</a>` : "";
   const search = `${event.title || ""} ${event.description || ""} ${(event.tags || []).join(" ")}`.toLowerCase();

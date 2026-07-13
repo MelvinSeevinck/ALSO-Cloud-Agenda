@@ -132,9 +132,11 @@
       <label class="req">Registratie URL<input id="registration" required placeholder="https://..."></label>
       <label>Banner</label>
 <div id="bannerDrop" class="banner-drop">
-  Klik hier of sleep een JPG, PNG of WebP naar dit vak
+  📁 Klik hier of sleep een JPG, PNG of WebP naar dit vak
   <input id="bannerFile" type="file" accept="image/jpeg,image/png,image/webp" class="hidden">
 </div>
+<p class="hint">De afbeelding wordt verkleind en via Power Automate opgeslagen in <code>docs/assets/banners/</code>.</p>
+<div id="bannerUploadStatus" class="status"></div>
 <img id="bannerPreview" class="banner-preview" alt="Banner preview">
 <input id="bannerUrl" type="hidden">
       <label class="req">Tags, gescheiden met komma's<input id="tags" required></label>
@@ -287,7 +289,7 @@ function selectEvent(id){
   $("endTime").value = e.allDay ? "11:00" : String((e.end || "T11:00").split("T")[1]).slice(0,5);
   $("location").value = e.location || "";
   $("registration").value = e.registrationUrl || "";
-  $("bannerUrl").value = e.bannerDataUrl || e.bannerUrl || "";
+  $("bannerUrl").value = e.bannerUrl || "";
   updateBannerPreview();
   $("tags").value = (e.tags || []).join(", ");
   $("description").value = e.description || "";
@@ -344,8 +346,7 @@ function readForm(){
     featured: $("featured").value === "true",
     tags: $("tags").value.split(",").map(t => t.trim()).filter(Boolean),
     registrationUrl: $("registration").value.trim(),
-    bannerUrl: "",
-    bannerDataUrl: $("bannerUrl").value.trim(),
+    bannerUrl: $("bannerUrl").value.trim(),
     description: $("description").value.trim()
   };
   if ($("allDay").value === "true") {
@@ -449,22 +450,33 @@ function updateBannerPreview(){
   }
 }
 
-function processBannerFile(file){
+function cleanFileName(value){
+  return (value || "event")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "event";
+}
+
+async function processBannerFile(file){
   if (!file) return;
+
   const allowed = ["image/jpeg","image/png","image/webp"];
   if (!allowed.includes(file.type)) {
     statusMsg("Gebruik een JPG, PNG of WebP afbeelding.", "errmsg");
     return;
   }
-  if (file.size > 8 * 1024 * 1024) {
-    statusMsg("De afbeelding is groter dan 8 MB.", "errmsg");
+
+  if (!getAdminKey()) {
+    statusMsg("Vul eerst de admin key in voordat je een banner uploadt.", "errmsg");
     return;
   }
 
   const reader = new FileReader();
-  reader.onload = event => {
+  reader.onload = async event => {
     const image = new Image();
-    image.onload = () => {
+    image.onload = async () => {
       const maxWidth = 1600;
       const maxHeight = 900;
       let width = image.width;
@@ -479,12 +491,56 @@ function processBannerFile(file){
       const ctx = canvas.getContext("2d");
       ctx.drawImage(image, 0, 0, width, height);
 
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-      $("bannerUrl").value = dataUrl;
-      updateBannerPreview();
-      previewEvent();
-      statusMsg("Banner verwerkt en geoptimaliseerd.", "okmsg");
+      const outputMime = "image/jpeg";
+      const dataUrl = canvas.toDataURL(outputMime, 0.84);
+      const base64Content = dataUrl.split(",")[1];
+      const titleValue = $("title").value.trim() || "event";
+      const uniquePart = Date.now().toString();
+      const fileName = cleanFileName(titleValue) + "-" + uniquePart + ".jpg";
+
+      $("bannerUploadStatus").textContent = "Banner wordt geüpload...";
+      $("bannerUploadStatus").className = "status okmsg";
+
+      try {
+        const endpoint = CONFIG.bannerUpload?.endpointUrl || CONFIG.adminPublish?.endpointUrl;
+        if (!endpoint) throw new Error("Banner upload endpoint ontbreekt in config.json");
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({
+            action: "uploadBanner",
+            adminKey: getAdminKey(),
+            fileName: fileName,
+            mimeType: outputMime,
+            contentBase64: base64Content,
+            folderPath: CONFIG.bannerUpload?.folderPath || "docs/assets/banners",
+            branch: CONFIG.bannerUpload?.branch || "main",
+            repository: CONFIG.bannerUpload?.repository || "MelvinSeevinck/ALSO-Cloud-Agenda",
+            timestampUtc: new Date().toISOString()
+          })
+        });
+
+        if (!response.ok) throw new Error("HTTP " + response.status);
+
+        let result = {};
+        try { result = await response.json(); } catch {}
+
+        const fallbackUrl = (CONFIG.bannerUpload?.publicBaseUrl || "") + fileName;
+        const bannerUrl = result.bannerUrl || result.url || fallbackUrl;
+
+        $("bannerUrl").value = bannerUrl;
+        updateBannerPreview();
+        previewEvent();
+
+        $("bannerUploadStatus").textContent = "Banner geüpload: " + bannerUrl;
+        $("bannerUploadStatus").className = "status okmsg";
+      } catch (error) {
+        $("bannerUploadStatus").textContent = "Banner upload mislukt: " + error.message + ". Controleer of de Power Automate-flow de actie uploadBanner ondersteunt.";
+        $("bannerUploadStatus").className = "status errmsg";
+      }
     };
+    image.onerror = () => statusMsg("De afbeelding kon niet worden gelezen.", "errmsg");
     image.src = event.target.result;
   };
   reader.readAsDataURL(file);
