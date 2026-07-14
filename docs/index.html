@@ -169,7 +169,7 @@ function eventCard(event) {
   const { webcalUrl } = getCalendarUrls();
   const tags = (event.tags || []).map(tag => `<span>${escapeHtml(tag)}</span>`).join("");
   const bannerSource = event.bannerUrl || "";
-  const banner = bannerSource ? `<img class="event-banner" src="${bannerSource}" alt="">` : "";
+  const banner = bannerSource ? `<img class="event-banner" src="${escapeHtml(bannerSource)}" alt="" loading="lazy" decoding="async">` : "";
   const registration = event.registrationUrl ? `<a class="small-button tracked-link requires-identity" href="${escapeHtml(event.registrationUrl)}" data-action="registration_click" data-calendar-type="registration" data-event-id="${escapeHtml(event.id)}" data-event-title="${escapeHtml(event.title)}">Aanmelden</a>` : "";
   const search = `${event.title || ""} ${event.description || ""} ${(event.tags || []).join(" ")}`.toLowerCase();
 
@@ -204,7 +204,16 @@ function googleEventLink(event) {
     const end = event.end.replace(/[-:]/g,"").replace(".000","").replace(/\+.*$/,"");
     dates = start + "/" + end;
   }
-  const params = new URLSearchParams({ action:"TEMPLATE", text:event.title, dates, details:event.description + "\n\nAanmelden / meer informatie: " + event.registrationUrl, location:event.location });
+  const extraInfo = event.registrationUrl
+    ? "\n\nAanmelden / meer informatie: " + event.registrationUrl
+    : "";
+  const params = new URLSearchParams({
+    action:"TEMPLATE",
+    text:event.title,
+    dates,
+    details:(event.description || "") + extraInfo,
+    location:event.location || ""
+  });
   return "https://calendar.google.com/calendar/render?" + params.toString();
 }
 
@@ -335,6 +344,7 @@ function norm(value, fallback="unknown"){
 function track(payload){
   const cfg = CONFIG.tracking || {};
   if (!cfg.enabled || !cfg.endpointUrl) return;
+
   const identity = getIdentity();
   const query = new URLSearchParams(location.search);
   const body = {
@@ -356,20 +366,54 @@ function track(payload){
     email: norm(identity.email, "unknown")
   };
 
+  // Eenvoudige POST zonder CORS-preflight. De response hoeft niet gelezen te worden.
+  fetch(cfg.endpointUrl, {
+    method: "POST",
+    mode: "no-cors",
+    cache: "no-store",
+    keepalive: true,
+    headers: {
+      "Content-Type": "text/plain;charset=UTF-8"
+    },
+    body: JSON.stringify(body)
+  }).catch(error => console.warn("Tracking kon niet worden verstuurd:", error));
+}
+
+async function fetchJsonWithCache(url, cacheKey){
   try {
-    const blob = new Blob([JSON.stringify(body)], { type:"application/json" });
-    if (navigator.sendBeacon) navigator.sendBeacon(cfg.endpointUrl, blob);
-    else fetch(cfg.endpointUrl, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(body), keepalive:true }).catch(()=>{});
-  } catch {}
+    const response = await fetch(url, { cache:"no-store" });
+    if (!response.ok) throw new Error(`${url} HTTP ${response.status}`);
+    const data = await response.json();
+    try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch {}
+    return data;
+  } catch (error) {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        console.warn(`Lokale cache gebruikt voor ${url}.`, error);
+        return JSON.parse(cached);
+      }
+    } catch {}
+    throw error;
+  }
+}
+
+function showLoadError(error){
+  console.error("ALSO Cloud Events kon niet volledig laden:", error);
+  document.getElementById("featuredEvents").innerHTML =
+    "<p>De eventgegevens konden tijdelijk niet worden geladen. Vernieuw de pagina over enkele minuten.</p>";
+  document.getElementById("events").innerHTML =
+    "<p>Er is tijdelijk geen verbinding met de agenda.</p>";
 }
 
 async function init(){
-  CONFIG = await fetch("config.json?ts=" + Date.now()).then(r => { if (!r.ok) throw new Error("config.json HTTP " + r.status); return r.json(); });
-  EVENTS = await fetch("events.json?ts=" + Date.now()).then(r => r.json());
+  try {
+    CONFIG = await fetchJsonWithCache("config.json?ts=" + Date.now(), "alsoCloudEventsConfigCache");
+    EVENTS = await fetchJsonWithCache("events.json?ts=" + Date.now(), "alsoCloudEventsEventsCache");
 
-  document.getElementById("pageTitle").textContent = CONFIG.calendar.name;
-  document.getElementById("pageDescription").textContent = CONFIG.calendar.description;
-  document.getElementById("privacyNotice").textContent = CONFIG.tracking.privacyNotice || "";
+    document.getElementById("pageTitle").textContent = CONFIG.calendar?.name || "ALSO Cloud Events";
+  document.getElementById("pageDescription").textContent = CONFIG.calendar?.description || "";
+  document.getElementById("privacyNotice").textContent = CONFIG.tracking?.privacyNotice || "";
 
   const urls = getCalendarUrls();
   outlookWebSubscribe.href = urls.outlookWebUrl;
@@ -385,7 +429,10 @@ async function init(){
   renderEvents();
   document.getElementById("search").addEventListener("input", applyFilters);
   ["userName","organization","email"].forEach(id => document.getElementById(id).addEventListener("input", updateButtons));
-  track({ action:"page_view", calendarType:"none", eventId:"none", eventTitle:"none" });
+    track({ action:"page_view", calendarType:"none", eventId:"none", eventTitle:"none" });
+  } catch (error) {
+    showLoadError(error);
+  }
 }
 
 init();
