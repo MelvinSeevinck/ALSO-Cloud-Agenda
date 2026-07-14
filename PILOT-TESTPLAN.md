@@ -22,3 +22,13 @@
 1. Controleer dat de URL exact `https://melvinseevinck.github.io/ALSO-Cloud-Agenda/calendar.ics` blijft.
 2. Wijzig een bestaand event.
 3. Controleer dat de wijziging na Outlook-refresh verschijnt.
+
+
+## Trackingtest V16.3
+1. Open de publieke pagina met Ctrl + F5.
+2. Sla naam, organisatie en e-mailadres op.
+3. Controleer de run history van `agenda registraties`.
+4. Controleer het SharePoint-item met actie `identity_saved`.
+5. Klik op een filter en abonnementsknop.
+6. Controleer `filter_click` en `subscribe_click`.
+7. In de browserconsole mag geen CORS-fout voor de trackingflow staan.

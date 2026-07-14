@@ -1,5 +1,12 @@
 # Changelog
 
+## V16.3 Pilot Tracking Fix
+- CORS-fout in tracking opgelost.
+- Tracking verstuurt nu `text/plain` met `mode: no-cors`.
+- Bronbestand `data/events-source.json` hersteld.
+- Cachefallback, foutafhandeling en bannerperformance verbeterd.
+- Bestaande functionaliteiten behouden.
+
 ## V16 Final
 - Banner upload toegevoegd
 - Status- en Featured-uitleg toegevoegd

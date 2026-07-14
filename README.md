@@ -104,3 +104,14 @@ Categorie-dropdown hersteld en automatische unieke IDs toegevoegd.
 - Alle abonnementsknoppen, links en instructies zijn pas zichtbaar na gebruikersregistratie
 - Screenshot van Outlook toegevoegd onder `docs/assets/outlook-desktop-subscribe-guide.png`
 - Bestaande tracking-, bannerupload- en Power Automate-integratie behouden
+
+
+### V16.3 Pilot Tracking Fix
+- Tracking naar Power Automate hersteld zonder CORS-preflight
+- `sendBeacon` verwijderd en vervangen door een eenvoudige `text/plain` POST
+- Lokale fallback-cache voor configuratie en events
+- Foutafhandeling bij tijdelijk niet-beschikbare JSON-bestanden
+- Lazy loading van eventbanners
+- Google Calendar-link verbeterd wanneer geen registratie-URL aanwezig is
+- Lege `data/events-source.json` hersteld vanuit de bestaande admin-events
+- Alle bestaande admin-, banner-, Outlook-, tracking- en agendafunctionaliteit behouden
